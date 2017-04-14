@@ -41,33 +41,33 @@ requirements:
     - setuptools >=11.3
     - cffi >=1.4.1
 
-test:
-  # Some package might need a `test/commands` key to check CLI.
-  # List all the packages/modules that `run_test.py` imports.
-  imports:
-    - cryptography
-    - cryptography.hazmat
-    - cryptography.hazmat.backends
-    - cryptography.hazmat.backends.commoncrypto
-    - cryptography.hazmat.backends.openssl
-    - cryptography.hazmat.bindings
-    - cryptography.hazmat.bindings.commoncrypto
-    - cryptography.hazmat.bindings.openssl
-    - cryptography.hazmat.primitives
-    - cryptography.hazmat.primitives.asymmetric
-    - cryptography.hazmat.primitives.ciphers
-    - cryptography.hazmat.primitives.interfaces
-    - cryptography.hazmat.primitives.kdf
-    - cryptography.hazmat.primitives.twofactor
-    - cryptography.x509
-
-  requires:
-    - cryptography_vectors ==1.8.1
-    - hypothesis >=1.11.4
-    - iso8601
-    - pretend
-    - pytest >=2.9.0
-    - pytz
+#test:
+#  # Some package might need a `test/commands` key to check CLI.
+#  # List all the packages/modules that `run_test.py` imports.
+#  imports:
+#    - cryptography
+#    - cryptography.hazmat
+#    - cryptography.hazmat.backends
+#    - cryptography.hazmat.backends.commoncrypto
+#    - cryptography.hazmat.backends.openssl
+#    - cryptography.hazmat.bindings
+#    - cryptography.hazmat.bindings.commoncrypto
+#    - cryptography.hazmat.bindings.openssl
+#    - cryptography.hazmat.primitives
+#    - cryptography.hazmat.primitives.asymmetric
+#    - cryptography.hazmat.primitives.ciphers
+#    - cryptography.hazmat.primitives.interfaces
+#    - cryptography.hazmat.primitives.kdf
+#    - cryptography.hazmat.primitives.twofactor
+#    - cryptography.x509
+#
+#  requires:
+#    - cryptography_vectors ==1.8.1
+#    - hypothesis >=1.11.4
+#    - iso8601
+#    - pretend
+#    - pytest >=2.9.0
+#    - pytz
 about:
   home: https://github.com/pyca/cryptography
   license: Apache Software License or BSD License
