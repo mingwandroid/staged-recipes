@@ -1,0 +1,28 @@
+From ef4ecd326843c41df7f9a437967d1435cd69a20c Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Thu, 8 Jun 2017 12:16:05 +0100
+Subject: [PATCH] Debug System.getProperties()
+
+---
+ src/JavaConfig.java | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/JavaConfig.java b/src/JavaConfig.java
+index eb83ccf..12b03a8 100644
+--- a/src/JavaConfig.java
++++ b/src/JavaConfig.java
+@@ -243,6 +243,11 @@ public class JavaConfig {
+ 	}
+ 	
+ 	public static void main(String[] args) throws Exception {
++
++		// this will list the current system properties
++		java.util.Properties p = System.getProperties();
++		p.list(System.out);
++
+ 		JavaConfig m=new JavaConfig(args);
+ 		m.run();
+ 	}
+-- 
+2.11.1
+
