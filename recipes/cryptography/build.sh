@@ -10,7 +10,5 @@
 # get found before build headers and libs though I have not verified that distutils
 # doesn't put its values first. Cross-compilation is workable but with rough edges.
 # I need a plan to file those down.
-if [[ "${HOST}" != "${BUILD}" ]]; then
-  export CFLAGS="-I${PREFIX}/include -L${PREFIX}/lib ${CFLAGS}"
-fi
-${PYTHON} setup.py install --single-version-externally-managed --record record.txt
+CFLAGS="-I${PREFIX}/include -L${PREFIX}/lib "${CFLAGS} \
+  ${PYTHON} setup.py install --single-version-externally-managed --record record.txt
