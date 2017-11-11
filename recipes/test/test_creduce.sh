@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if ! creduce interestingness_test.sh interestingness_input; then
+  echo "ERROR: creduce failed"
+  exit 1
+fi
+
+NUM_LINES=$(cat interestingness_input | wc -l)
+if [[ ${NUM_LINES} != 1 ]]; then
+  echo "ERROR: creduce failed to reduce the testcase to a single line"
+  exit 2
+fi
+
+NUM_BAD_EGGS=$(cat interestingness_input | grep "a bad egg" | wc -l)
+if [[ ${NUM_BAD_EGGS} != 1 ]]; then
+  echo "ERROR: creduce failed to reduce the testcase to a single bad egg"
+  exit 3
+fi
