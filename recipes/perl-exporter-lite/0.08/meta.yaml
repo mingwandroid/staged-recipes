@@ -44,6 +44,6 @@ about:
   license: perl_5
   summary: 'lightweight exporting of functions and variables'
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - mingwandroid

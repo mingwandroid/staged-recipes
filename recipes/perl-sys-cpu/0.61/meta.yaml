@@ -38,6 +38,6 @@ about:
   license: unknown
   summary: "Perl extension for getting CPU information. Currently only number of CPU's supported."
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - mingwandroid

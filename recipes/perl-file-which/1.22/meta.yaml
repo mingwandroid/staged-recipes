@@ -38,6 +38,6 @@ about:
   license: perl_5
   summary: 'Perl implementation of the which utility as an API'
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - mingwandroid
