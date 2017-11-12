@@ -33,7 +33,8 @@ test:
 
 about:
   home: http://metacpan.org/pod/Getopt::Tabular
-  license: unknown
+  license: Perl Artistic License
+  license_family: Other
   summary: 'table-driven argument parsing for Perl 5'
 
 extra:

@@ -77,6 +77,6 @@ about:
   license: perl_5
   summary: 'Create a module Makefile'
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - mingwandroid
