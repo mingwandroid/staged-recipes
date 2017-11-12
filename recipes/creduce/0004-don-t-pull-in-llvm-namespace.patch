@@ -1,0 +1,846 @@
+From 243c75f0adf66ed89a3605ab4a673da0f885bf3c Mon Sep 17 00:00:00 2001
+From: Yang Chen <chenyang@cs.utah.edu>
+Date: Wed, 13 Sep 2017 01:00:14 -0700
+Subject: [PATCH] don't pull in llvm namespace
+
+It's unnecessary for using llvm namespace.
+---
+ clang_delta/AggregateToScalar.cpp                  |  1 -
+ clang_delta/CallExprToValue.cpp                    |  1 -
+ clang_delta/ClassTemplateToClass.cpp               |  9 ++++-----
+ clang_delta/CombineGlobalVarDecl.cpp               |  1 -
+ clang_delta/CombineLocalVarDecl.cpp                |  3 +--
+ clang_delta/EmptyStructToInt.cpp                   |  1 -
+ clang_delta/ExpressionDetector.cpp                 |  7 +++----
+ clang_delta/InstantiateTemplateParam.cpp           |  1 -
+ clang_delta/InstantiateTemplateTypeParamToInt.cpp  |  1 -
+ clang_delta/LocalToGlobal.cpp                      |  1 -
+ clang_delta/ReduceArrayDim.cpp                     |  1 -
+ clang_delta/ReduceArraySize.cpp                    |  1 -
+ clang_delta/ReduceClassTemplateParameter.cpp       |  3 +--
+ clang_delta/ReducePointerLevel.cpp                 |  1 -
+ clang_delta/ReducePointerPairs.cpp                 |  1 -
+ clang_delta/RemoveAddrTaken.cpp                    |  1 -
+ clang_delta/RemoveArray.cpp                        |  1 -
+ clang_delta/RemoveBaseClass.cpp                    |  1 -
+ clang_delta/RemoveCtorInitializer.cpp              |  1 -
+ clang_delta/RemoveNamespace.cpp                    |  1 -
+ clang_delta/RemovePointer.cpp                      |  1 -
+ clang_delta/RemoveTrivialBaseTemplate.cpp          |  1 -
+ clang_delta/RemoveUnresolvedBase.cpp               |  1 -
+ clang_delta/RemoveUnusedOuterClass.cpp             |  1 -
+ clang_delta/RenameCXXMethod.cpp                    |  1 -
+ clang_delta/RenameClass.cpp                        |  1 -
+ clang_delta/RenameFun.cpp                          |  1 -
+ clang_delta/RenameParam.cpp                        |  7 +++----
+ clang_delta/RenameVar.cpp                          |  1 -
+ clang_delta/ReplaceArrayAccessWithIndex.cpp        |  1 -
+ clang_delta/ReplaceArrayIndexVar.cpp               |  7 +++----
+ clang_delta/ReplaceCallExpr.cpp                    | 23 +++++++++++-----------
+ clang_delta/ReplaceClassWithBaseTemplateSpec.cpp   |  1 -
+ clang_delta/ReplaceDependentName.cpp               |  1 -
+ clang_delta/ReplaceDependentTypedef.cpp            |  1 -
+ clang_delta/ReplaceDerivedClass.cpp                |  1 -
+ clang_delta/ReplaceOneLevelTypedefType.cpp         |  1 -
+ clang_delta/ReplaceSimpleTypedef.cpp               |  1 -
+ clang_delta/SimpleInliner.cpp                      |  1 -
+ clang_delta/SimplifyCallExpr.cpp                   |  1 -
+ clang_delta/SimplifyDependentTypedef.cpp           |  1 -
+ clang_delta/SimplifyNestedClass.cpp                |  1 -
+ .../SimplifyRecursiveTemplateInstantiation.cpp     |  1 -
+ clang_delta/SimplifyStruct.cpp                     |  1 -
+ clang_delta/SimplifyStructUnionDecl.cpp            |  1 -
+ clang_delta/TemplateArgToInt.cpp                   |  1 -
+ clang_delta/TemplateNonTypeArgToInt.cpp            |  1 -
+ clang_delta/UnionToStruct.cpp                      |  1 -
+ 48 files changed, 26 insertions(+), 74 deletions(-)
+
+diff --git a/clang_delta/AggregateToScalar.cpp b/clang_delta/AggregateToScalar.cpp
+index dd936ce..9f98f56 100644
+--- a/clang_delta/AggregateToScalar.cpp
++++ b/clang_delta/AggregateToScalar.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Replace accesses to an aggregate member with \
+diff --git a/clang_delta/CallExprToValue.cpp b/clang_delta/CallExprToValue.cpp
+index 8d859a1..b34246f 100644
+--- a/clang_delta/CallExprToValue.cpp
++++ b/clang_delta/CallExprToValue.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Replace a call expression with a value or variable which \
+diff --git a/clang_delta/ClassTemplateToClass.cpp b/clang_delta/ClassTemplateToClass.cpp
+index fdba247..ecf63b8 100644
+--- a/clang_delta/ClassTemplateToClass.cpp
++++ b/clang_delta/ClassTemplateToClass.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "Change a class template to a class if this class template: \n\
+@@ -68,9 +67,9 @@ class TemplateParameterTypeVisitor : public
+   RecursiveASTVisitor<TemplateParameterTypeVisitor> {
+ 
+ public:
+-  typedef SmallPtrSet<TemplateTypeParmDecl *, 8> TypeParmDeclSet;
++  typedef llvm::SmallPtrSet<TemplateTypeParmDecl *, 8> TypeParmDeclSet;
+ 
+-  typedef SmallPtrSet<TemplateName *, 8> TemplateNameSet;
++  typedef llvm::SmallPtrSet<TemplateName *, 8> TemplateNameSet;
+ 
+   ~TemplateParameterTypeVisitor(void) {
+     for (TemplateNameSet::iterator I = TmplNames.begin(), E = TmplNames.end();
+@@ -301,7 +300,7 @@ bool ClassTemplateToClass::hasUsedNameDecl(
+   if (!PartialD->isCompleteDefinition())
+     return false;
+ 
+-  SmallPtrSet<NamedDecl *, 8> Params;
++  llvm::SmallPtrSet<NamedDecl *, 8> Params;
+   TemplateParameterList *PartialTPList = PartialD->getTemplateParameters();
+   for (unsigned PI = 0; PI < PartialTPList->size(); ++PI) {
+     NamedDecl *ND = PartialTPList->getParam(PI);
+@@ -324,7 +323,7 @@ bool ClassTemplateToClass::hasUsedNameDecl(
+     ParamVisitor.TraverseDecl(*DI);
+   }
+ 
+-  for (SmallPtrSet<NamedDecl *, 8>::iterator I = Params.begin(), 
++  for (llvm::SmallPtrSet<NamedDecl *, 8>::iterator I = Params.begin(), 
+        E = Params.end(); I != E; ++I) {
+     if (ParamVisitor.isAUsedParameter(*I))
+       return true;
+diff --git a/clang_delta/CombineGlobalVarDecl.cpp b/clang_delta/CombineGlobalVarDecl.cpp
+index 565f16e..23f6f67 100644
+--- a/clang_delta/CombineGlobalVarDecl.cpp
++++ b/clang_delta/CombineGlobalVarDecl.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Combine global variable declarations with the same type. \
+diff --git a/clang_delta/CombineLocalVarDecl.cpp b/clang_delta/CombineLocalVarDecl.cpp
+index 672400c..c5a06ed 100644
+--- a/clang_delta/CombineLocalVarDecl.cpp
++++ b/clang_delta/CombineLocalVarDecl.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Combine local variable declarations with the same type. \
+@@ -103,7 +102,7 @@ bool CombLocalVarCollectionVisitor::VisitCompoundStmt(CompoundStmt *CS)
+ 
+     const Type *CanonicalT = 
+       ConsumerInstance->Context->getCanonicalType(T);
+-    DenseMap<const Type *, DeclStmt *>::iterator TI = 
++    llvm::DenseMap<const Type *, DeclStmt *>::iterator TI = 
+       ConsumerInstance->DeclStmts.find(CanonicalT);
+     if (TI == ConsumerInstance->DeclStmts.end()) {
+       ConsumerInstance->DeclStmts[CanonicalT] = DS;
+diff --git a/clang_delta/EmptyStructToInt.cpp b/clang_delta/EmptyStructToInt.cpp
+index e8fcc3a..c052fd8 100644
+--- a/clang_delta/EmptyStructToInt.cpp
++++ b/clang_delta/EmptyStructToInt.cpp
+@@ -24,7 +24,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Replace an empty struct with type of int. A struct is defined to be empty if \
+diff --git a/clang_delta/ExpressionDetector.cpp b/clang_delta/ExpressionDetector.cpp
+index be519eb..f480c7d 100644
+--- a/clang_delta/ExpressionDetector.cpp
++++ b/clang_delta/ExpressionDetector.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Insert a printf statement to print out the value of an expression. \
+@@ -126,7 +125,7 @@ bool LocalTmpVarCollector::VisitDeclRefExpr(DeclRefExpr *DRE)
+ // (2) the LHS of a binary operator;
+ class LocalUOBOVisitor : public RecursiveASTVisitor<LocalUOBOVisitor> {
+ public:
+-  explicit LocalUOBOVisitor(SmallPtrSet<const Expr *, 10> &ES)
++  explicit LocalUOBOVisitor(llvm::SmallPtrSet<const Expr *, 10> &ES)
+     : InvalidExprs(ES)
+   { }
+ 
+@@ -135,7 +134,7 @@ public:
+   bool VisitBinaryOperator(BinaryOperator *BO);
+ 
+ private:
+-  SmallPtrSet<const Expr *, 10> &InvalidExprs;
++  llvm::SmallPtrSet<const Expr *, 10> &InvalidExprs;
+ };
+ 
+ bool LocalUOBOVisitor::VisitUnaryOperator(UnaryOperator *UO)
+@@ -575,7 +574,7 @@ bool ExpressionDetector::isValidExpr(Stmt *S, const Expr *E)
+   // statement many times. Gain a log of performance improvement.
+   auto EI = InvalidExprsInUOBO.find(S);
+   if (EI == InvalidExprsInUOBO.end()) {
+-    SmallPtrSet<const Expr *, 10> InvalidExprs;
++    llvm::SmallPtrSet<const Expr *, 10> InvalidExprs;
+     LocalUOBOVisitor UOBOVisitor(InvalidExprs);
+     UOBOVisitor.TraverseStmt(S);
+     InvalidExprsInUOBO[S] = InvalidExprs;
+diff --git a/clang_delta/InstantiateTemplateParam.cpp b/clang_delta/InstantiateTemplateParam.cpp
+index 53a1bc8..44a8556 100644
+--- a/clang_delta/InstantiateTemplateParam.cpp
++++ b/clang_delta/InstantiateTemplateParam.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to instantiate a template parameter with  \
+diff --git a/clang_delta/InstantiateTemplateTypeParamToInt.cpp b/clang_delta/InstantiateTemplateTypeParamToInt.cpp
+index a2ac5b9..1299bea 100644
+--- a/clang_delta/InstantiateTemplateTypeParamToInt.cpp
++++ b/clang_delta/InstantiateTemplateTypeParamToInt.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ // TODO: probably need to handle more cases where this transformation
+ // generates invalid code, e.g.:
+diff --git a/clang_delta/LocalToGlobal.cpp b/clang_delta/LocalToGlobal.cpp
+index dead3e9..8dbbde7 100644
+--- a/clang_delta/LocalToGlobal.cpp
++++ b/clang_delta/LocalToGlobal.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Move the declaraion of a non-static local variable from \
+diff --git a/clang_delta/ReduceArrayDim.cpp b/clang_delta/ReduceArrayDim.cpp
+index 6bedb5f..6a41999 100644
+--- a/clang_delta/ReduceArrayDim.cpp
++++ b/clang_delta/ReduceArrayDim.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Reduce the dimension of an array. Each transformation iteration \
+diff --git a/clang_delta/ReduceArraySize.cpp b/clang_delta/ReduceArraySize.cpp
+index f8ef4f6..20f910b 100644
+--- a/clang_delta/ReduceArraySize.cpp
++++ b/clang_delta/ReduceArraySize.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Reduce the size of an array to the maximum index of \
+diff --git a/clang_delta/ReduceClassTemplateParameter.cpp b/clang_delta/ReduceClassTemplateParameter.cpp
+index c6259f6..86458fd 100644
+--- a/clang_delta/ReduceClassTemplateParameter.cpp
++++ b/clang_delta/ReduceClassTemplateParameter.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to remove one unused parameter from a class template \
+@@ -53,7 +52,7 @@ private:
+ 
+ namespace {
+ 
+-typedef SmallPtrSet<const NamedDecl *, 8> TemplateParameterSet;
++typedef llvm::SmallPtrSet<const NamedDecl *, 8> TemplateParameterSet;
+ 
+ class TemplateParameterVisitor : public 
+   RecursiveASTVisitor<TemplateParameterVisitor> {
+diff --git a/clang_delta/ReducePointerLevel.cpp b/clang_delta/ReducePointerLevel.cpp
+index 7a4bc30..f38546f 100644
+--- a/clang_delta/ReducePointerLevel.cpp
++++ b/clang_delta/ReducePointerLevel.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Reduce pointer indirect level for a global/local variable. \
+diff --git a/clang_delta/ReducePointerPairs.cpp b/clang_delta/ReducePointerPairs.cpp
+index 5d7981e..c00b093 100644
+--- a/clang_delta/ReducePointerPairs.cpp
++++ b/clang_delta/ReducePointerPairs.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Reduce a pair of pointers at the same time if they have the following shape:\n\
+diff --git a/clang_delta/RemoveAddrTaken.cpp b/clang_delta/RemoveAddrTaken.cpp
+index 955d395..1620e78 100644
+--- a/clang_delta/RemoveAddrTaken.cpp
++++ b/clang_delta/RemoveAddrTaken.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Remove an addr-taken operator if \n\
+diff --git a/clang_delta/RemoveArray.cpp b/clang_delta/RemoveArray.cpp
+index e8305b1..056f04c 100644
+--- a/clang_delta/RemoveArray.cpp
++++ b/clang_delta/RemoveArray.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Change an array var to a corresponding non-array one. \
+diff --git a/clang_delta/RemoveBaseClass.cpp b/clang_delta/RemoveBaseClass.cpp
+index bb32701..d42e2a9 100644
+--- a/clang_delta/RemoveBaseClass.cpp
++++ b/clang_delta/RemoveBaseClass.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ using namespace clang_delta_common_visitor;
+ 
+ static const char *DescriptionMsg = 
+diff --git a/clang_delta/RemoveCtorInitializer.cpp b/clang_delta/RemoveCtorInitializer.cpp
+index 7a6a9a2..c7b4246 100644
+--- a/clang_delta/RemoveCtorInitializer.cpp
++++ b/clang_delta/RemoveCtorInitializer.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to remove an initializer from a Ctor. \n";
+diff --git a/clang_delta/RemoveNamespace.cpp b/clang_delta/RemoveNamespace.cpp
+index 184277c..34ddef8 100644
+--- a/clang_delta/RemoveNamespace.cpp
++++ b/clang_delta/RemoveNamespace.cpp
+@@ -22,7 +22,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Remove namespaces. This pass tries to remove namespace without \
+diff --git a/clang_delta/RemovePointer.cpp b/clang_delta/RemovePointer.cpp
+index 1d51a70..62dbc1a 100644
+--- a/clang_delta/RemovePointer.cpp
++++ b/clang_delta/RemovePointer.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Only reduce the level of a pointer var if this pointer is \
+diff --git a/clang_delta/RemoveTrivialBaseTemplate.cpp b/clang_delta/RemoveTrivialBaseTemplate.cpp
+index e0025a8..a358752 100644
+--- a/clang_delta/RemoveTrivialBaseTemplate.cpp
++++ b/clang_delta/RemoveTrivialBaseTemplate.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass removes a base class if it is an instantiation from a class \
+diff --git a/clang_delta/RemoveUnresolvedBase.cpp b/clang_delta/RemoveUnresolvedBase.cpp
+index 95d243a..7d1f8a9 100644
+--- a/clang_delta/RemoveUnresolvedBase.cpp
++++ b/clang_delta/RemoveUnresolvedBase.cpp
+@@ -20,7 +20,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to remove a base specifier if we cannot \
+diff --git a/clang_delta/RemoveUnusedOuterClass.cpp b/clang_delta/RemoveUnusedOuterClass.cpp
+index e7dc480..dffbf26 100644
+--- a/clang_delta/RemoveUnusedOuterClass.cpp
++++ b/clang_delta/RemoveUnusedOuterClass.cpp
+@@ -22,7 +22,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass an unused outer class if \n\
+diff --git a/clang_delta/RenameCXXMethod.cpp b/clang_delta/RenameCXXMethod.cpp
+index 6fe31e6..1f7132b 100644
+--- a/clang_delta/RenameCXXMethod.cpp
++++ b/clang_delta/RenameCXXMethod.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Another pass to increase readability of reduced code. \
+diff --git a/clang_delta/RenameClass.cpp b/clang_delta/RenameClass.cpp
+index eebf626..258ff4a 100644
+--- a/clang_delta/RenameClass.cpp
++++ b/clang_delta/RenameClass.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ using namespace clang_delta_common_visitor;
+ 
+ static const char *DescriptionMsg =
+diff --git a/clang_delta/RenameFun.cpp b/clang_delta/RenameFun.cpp
+index 458750a..bc1df29 100644
+--- a/clang_delta/RenameFun.cpp
++++ b/clang_delta/RenameFun.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Another pass to increase readability of reduced code. \
+diff --git a/clang_delta/RenameParam.cpp b/clang_delta/RenameParam.cpp
+index 3ce3b22..3cf9f12 100644
+--- a/clang_delta/RenameParam.cpp
++++ b/clang_delta/RenameParam.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Another pass to increase readability of reduced code. \
+@@ -62,7 +61,7 @@ private:
+ 
+   RenameParam *ConsumerInstance;
+ 
+-  DenseMap<ParmVarDecl *, std::string> ParamNameMap;
++  llvm::DenseMap<ParmVarDecl *, std::string> ParamNameMap;
+ 
+ };
+ 
+@@ -221,7 +220,7 @@ void RenameParam::addLocalVar(VarDecl *VD)
+   FunctionDecl *CanonicalFD = FD->getCanonicalDecl();
+ 
+   ExistingNumberSet *CurrSet;
+-  DenseMap<FunctionDecl *, ExistingNumberSet *>::iterator I =
++  llvm::DenseMap<FunctionDecl *, ExistingNumberSet *>::iterator I =
+     FunExistingVarsMap.find(CanonicalFD);
+ 
+   if (I == FunExistingVarsMap.end()) {
+@@ -278,7 +277,7 @@ RenameParam::~RenameParam(void)
+   if (RenameVisitor)
+     delete RenameVisitor;
+ 
+-  for (DenseMap<FunctionDecl *, ExistingNumberSet *>::iterator 
++  for (llvm::DenseMap<FunctionDecl *, ExistingNumberSet *>::iterator 
+         I = FunExistingVarsMap.begin(), E = FunExistingVarsMap.end();
+         I != E; ++I) {
+     delete (*I).second;
+diff --git a/clang_delta/RenameVar.cpp b/clang_delta/RenameVar.cpp
+index 3529b13..8e477fd 100644
+--- a/clang_delta/RenameVar.cpp
++++ b/clang_delta/RenameVar.cpp
+@@ -24,7 +24,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "To increase readability, rename global and local variables \
+diff --git a/clang_delta/ReplaceArrayAccessWithIndex.cpp b/clang_delta/ReplaceArrayAccessWithIndex.cpp
+index 969bf7f..da92f34 100644
+--- a/clang_delta/ReplaceArrayAccessWithIndex.cpp
++++ b/clang_delta/ReplaceArrayAccessWithIndex.cpp
+@@ -23,7 +23,6 @@
+ #include <iostream>
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ 
+ static const char *Description =
+diff --git a/clang_delta/ReplaceArrayIndexVar.cpp b/clang_delta/ReplaceArrayIndexVar.cpp
+index db13359..6b258fe 100644
+--- a/clang_delta/ReplaceArrayIndexVar.cpp
++++ b/clang_delta/ReplaceArrayIndexVar.cpp
+@@ -22,7 +22,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Looking for the pattern like below: \n\
+@@ -34,10 +33,10 @@ if  is less than 15, then replace a[i] with  a[0] ... a[num-1]";
+ static RegisterTransformation<ReplaceArrayIndexVar>
+          Trans("replace-array-index-var", DescriptionMsg);
+ 
+-typedef SmallPtrSet<const clang::ArraySubscriptExpr *, 10>
++typedef llvm::SmallPtrSet<const clang::ArraySubscriptExpr *, 10>
+   ArraySubscriptExprSet;
+ 
+-typedef DenseMap<const clang::VarDecl *, ArraySubscriptExprSet *>
++typedef llvm::DenseMap<const clang::VarDecl *, ArraySubscriptExprSet *>
+   VarDeclToASESetMap;
+ 
+ typedef llvm::DenseMap<const clang::VarDecl *, unsigned>
+@@ -105,7 +104,7 @@ bool ReplaceArrayIndexVarCollectionVisitor::VisitVarDecl(VarDecl *VD)
+   if (dyn_cast<ArrayType>(ElemTy))
+     return true;
+ 
+-  APInt APSz = CstArrayTy->getSize();
++  llvm::APInt APSz = CstArrayTy->getSize();
+   unsigned Sz = (unsigned int)(*APSz.getRawData());
+   if (Sz <= ConsumerInstance->MaxSize)
+     ConsumerInstance->CstArrayVars[CanonicalVD] = Sz;
+diff --git a/clang_delta/ReplaceCallExpr.cpp b/clang_delta/ReplaceCallExpr.cpp
+index 2c52cda..1c7ab2c 100644
+--- a/clang_delta/ReplaceCallExpr.cpp
++++ b/clang_delta/ReplaceCallExpr.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Replace a CallExpr with a return expression from \
+@@ -318,7 +317,7 @@ void ReplaceCallExpr::HandleTranslationUnit(ASTContext &Ctx)
+ 
+ void ReplaceCallExpr::addOneReturnStmt(ReturnStmt *RS)
+ {
+-  DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator I =
++  llvm::DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator I =
+     FuncToReturnStmts.find(CurrentFD);
+   ReturnStmtsVector *V;
+   if (I == FuncToReturnStmts.end()) {
+@@ -338,7 +337,7 @@ void ReplaceCallExpr::addOneReturnStmt(ReturnStmt *RS)
+ void ReplaceCallExpr::addOneParmRef(ReturnStmt *RS, const DeclRefExpr *DE)
+ {
+   TransAssert(RS && "NULL ReturnStmt!");
+-  DenseMap<ReturnStmt *, ParmRefsVector *>::iterator I =
++  llvm::DenseMap<ReturnStmt *, ParmRefsVector *>::iterator I =
+     ReturnStmtToParmRefs.find(RS);
+   ParmRefsVector *V;
+   if (I == ReturnStmtToParmRefs.end()) {
+@@ -358,7 +357,7 @@ void ReplaceCallExpr::addOneParmRef(ReturnStmt *RS, const DeclRefExpr *DE)
+ void ReplaceCallExpr::getParmPosVector(ParameterPosVector &PosVector,
+                                        ReturnStmt *RS, CallExpr *CE)
+ {
+-  DenseMap<ReturnStmt *, ParmRefsVector *>::iterator RI =
++  llvm::DenseMap<ReturnStmt *, ParmRefsVector *>::iterator RI =
+     ReturnStmtToParmRefs.find(RS);
+   if (RI == ReturnStmtToParmRefs.end())
+     return;
+@@ -443,7 +442,7 @@ void ReplaceCallExpr::doAnalysis(void)
+     FunctionDecl *CalleeDecl = (*CI)->getDirectCallee();
+     TransAssert(CalleeDecl && "Bad CalleeDecl!");
+ 
+-    DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator I =
++    llvm::DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator I =
+       FuncToReturnStmts.find(CalleeDecl);
+     if (I == FuncToReturnStmts.end())
+       continue;
+@@ -532,10 +531,10 @@ void ReplaceCallExpr::insertParmRef
+ }
+ 
+ void ReplaceCallExpr::sortParmRefsByOffs(const char *StartBuf,
+-       DenseMap<const DeclRefExpr *, std::string> &ParmRefToStrMap,
++       llvm::DenseMap<const DeclRefExpr *, std::string> &ParmRefToStrMap,
+        std::vector< std::pair<const DeclRefExpr *, int> > &SortedParmRefs)
+ {
+-  for(DenseMap<const DeclRefExpr *, std::string>::iterator
++  for(llvm::DenseMap<const DeclRefExpr *, std::string>::iterator
+       I = ParmRefToStrMap.begin(), E = ParmRefToStrMap.end(); I != E; ++I) {
+ 
+     const DeclRefExpr *ParmRef = (*I).first;
+@@ -550,7 +549,7 @@ void ReplaceCallExpr::sortParmRefsByOffs(const char *StartBuf,
+ }
+ 
+ void ReplaceCallExpr::replaceParmRefs(std::string &RetStr, const Expr *RetE,
+-       DenseMap<const DeclRefExpr *, std::string> &ParmRefToStrMap)
++       llvm::DenseMap<const DeclRefExpr *, std::string> &ParmRefToStrMap)
+ {
+   SourceLocation StartLoc = RetE->getLocStart();
+   const char *StartBuf = SrcManager->getCharacterData(StartLoc);
+@@ -579,9 +578,9 @@ void ReplaceCallExpr::replaceCallExpr(void)
+   Expr *RetE = TheReturnStmt->getRetValue();
+   TransAssert(RetE && "Bad Return Value!");
+ 
+-  DenseMap<const DeclRefExpr *, std::string> ParmRefToStrMap;
++  llvm::DenseMap<const DeclRefExpr *, std::string> ParmRefToStrMap;
+ 
+-  DenseMap<ReturnStmt *, ParmRefsVector *>::iterator I =
++  llvm::DenseMap<ReturnStmt *, ParmRefsVector *>::iterator I =
+     ReturnStmtToParmRefs.find(TheReturnStmt);
+ 
+   if (I != ReturnStmtToParmRefs.end()) {
+@@ -607,13 +606,13 @@ ReplaceCallExpr::~ReplaceCallExpr(void)
+ {
+   delete CollectionVisitor;
+ 
+-  for (DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator
++  for (llvm::DenseMap<FunctionDecl *, ReturnStmtsVector *>::iterator
+        I = FuncToReturnStmts.begin(), E = FuncToReturnStmts.end();
+        I != E; ++I) {
+     delete (*I).second;
+   }
+ 
+-  for (DenseMap<ReturnStmt *, ParmRefsVector *>::iterator
++  for (llvm::DenseMap<ReturnStmt *, ParmRefsVector *>::iterator
+        I = ReturnStmtToParmRefs.begin(), E = ReturnStmtToParmRefs.end();
+        I != E; ++I) {
+     delete (*I).second;
+diff --git a/clang_delta/ReplaceClassWithBaseTemplateSpec.cpp b/clang_delta/ReplaceClassWithBaseTemplateSpec.cpp
+index 5ba7952..7c36308 100644
+--- a/clang_delta/ReplaceClassWithBaseTemplateSpec.cpp
++++ b/clang_delta/ReplaceClassWithBaseTemplateSpec.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to replace a class with its base class if \n\
+diff --git a/clang_delta/ReplaceDependentName.cpp b/clang_delta/ReplaceDependentName.cpp
+index 39c251c..07b0ee9 100644
+--- a/clang_delta/ReplaceDependentName.cpp
++++ b/clang_delta/ReplaceDependentName.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass replaces a dependent name (referred by typename) with \n\
+diff --git a/clang_delta/ReplaceDependentTypedef.cpp b/clang_delta/ReplaceDependentTypedef.cpp
+index 63d87b0..0645e8c 100644
+--- a/clang_delta/ReplaceDependentTypedef.cpp
++++ b/clang_delta/ReplaceDependentTypedef.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass replaces typedef names with the underlying type if the \
+diff --git a/clang_delta/ReplaceDerivedClass.cpp b/clang_delta/ReplaceDerivedClass.cpp
+index 6a052a2..e95baf4 100644
+--- a/clang_delta/ReplaceDerivedClass.cpp
++++ b/clang_delta/ReplaceDerivedClass.cpp
+@@ -20,7 +20,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ using namespace clang_delta_common_visitor;
+ 
+ static const char *DescriptionMsg =
+diff --git a/clang_delta/ReplaceOneLevelTypedefType.cpp b/clang_delta/ReplaceOneLevelTypedefType.cpp
+index ecd93a4..a52edb1 100644
+--- a/clang_delta/ReplaceOneLevelTypedefType.cpp
++++ b/clang_delta/ReplaceOneLevelTypedefType.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass literally replaces a typedef type with the underlying type \
+diff --git a/clang_delta/ReplaceSimpleTypedef.cpp b/clang_delta/ReplaceSimpleTypedef.cpp
+index 642a56a..278505a 100644
+--- a/clang_delta/ReplaceSimpleTypedef.cpp
++++ b/clang_delta/ReplaceSimpleTypedef.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass replaces typedef names with the underlying type if the \
+diff --git a/clang_delta/SimpleInliner.cpp b/clang_delta/SimpleInliner.cpp
+index 624c9fb..fad8447 100644
+--- a/clang_delta/SimpleInliner.cpp
++++ b/clang_delta/SimpleInliner.cpp
+@@ -24,7 +24,6 @@
+ #include "CommonStatementVisitor.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "A really simple inliner. \
+diff --git a/clang_delta/SimplifyCallExpr.cpp b/clang_delta/SimplifyCallExpr.cpp
+index 309fde8..55b59c8 100644
+--- a/clang_delta/SimplifyCallExpr.cpp
++++ b/clang_delta/SimplifyCallExpr.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Simplify a call expression to a comma expression. \
+diff --git a/clang_delta/SimplifyDependentTypedef.cpp b/clang_delta/SimplifyDependentTypedef.cpp
+index 5c4c328..73b6bd7 100644
+--- a/clang_delta/SimplifyDependentTypedef.cpp
++++ b/clang_delta/SimplifyDependentTypedef.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Sometimes the underlying type of a typedef declaration \
+diff --git a/clang_delta/SimplifyNestedClass.cpp b/clang_delta/SimplifyNestedClass.cpp
+index 0748bdc..1c7d6a0 100644
+--- a/clang_delta/SimplifyNestedClass.cpp
++++ b/clang_delta/SimplifyNestedClass.cpp
+@@ -22,7 +22,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass tries to simplify nested classes by replacing the \
+diff --git a/clang_delta/SimplifyRecursiveTemplateInstantiation.cpp b/clang_delta/SimplifyRecursiveTemplateInstantiation.cpp
+index 6861334..9be0547 100644
+--- a/clang_delta/SimplifyRecursiveTemplateInstantiation.cpp
++++ b/clang_delta/SimplifyRecursiveTemplateInstantiation.cpp
+@@ -22,7 +22,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg = 
+ "This pass handles a special case where we have recursive template \
+diff --git a/clang_delta/SimplifyStruct.cpp b/clang_delta/SimplifyStruct.cpp
+index cf6461b..c70bd7b 100644
+--- a/clang_delta/SimplifyStruct.cpp
++++ b/clang_delta/SimplifyStruct.cpp
+@@ -23,7 +23,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass replaces a struct with its parent if it has only one \
+diff --git a/clang_delta/SimplifyStructUnionDecl.cpp b/clang_delta/SimplifyStructUnionDecl.cpp
+index 0fd64ec..a74a02d 100644
+--- a/clang_delta/SimplifyStructUnionDecl.cpp
++++ b/clang_delta/SimplifyStructUnionDecl.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "This pass combines the declaration of global vars declared \
+diff --git a/clang_delta/TemplateArgToInt.cpp b/clang_delta/TemplateArgToInt.cpp
+index 955f3db..e15be38 100644
+--- a/clang_delta/TemplateArgToInt.cpp
++++ b/clang_delta/TemplateArgToInt.cpp
+@@ -23,7 +23,6 @@
+ #include "CommonTemplateArgumentVisitor.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ using namespace clang_delta_common_visitor;
+ 
+ static const char *DescriptionMsg = 
+diff --git a/clang_delta/TemplateNonTypeArgToInt.cpp b/clang_delta/TemplateNonTypeArgToInt.cpp
+index 37eb365..3352c67 100644
+--- a/clang_delta/TemplateNonTypeArgToInt.cpp
++++ b/clang_delta/TemplateNonTypeArgToInt.cpp
+@@ -22,7 +22,6 @@
+ #include "CommonTemplateArgumentVisitor.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ using namespace clang_delta_common_visitor;
+ 
+ static const char *DescriptionMsg = 
+diff --git a/clang_delta/UnionToStruct.cpp b/clang_delta/UnionToStruct.cpp
+index 8875b28..7ace20d 100644
+--- a/clang_delta/UnionToStruct.cpp
++++ b/clang_delta/UnionToStruct.cpp
+@@ -21,7 +21,6 @@
+ #include "TransformationManager.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DescriptionMsg =
+ "Change a union declaration to a struct declaration. \
+-- 
+2.10.1
+

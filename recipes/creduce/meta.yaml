@@ -9,6 +9,11 @@ package:
 source:
   url: http://embed.cs.utah.edu/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  patches:
+    - 0001-Fix-build-failure-with-LLVM-trunk.patch
+    - 0002-make-sure-the-function-def-has-a-body.patch
+    - 0003-Fixed-an-issue-for-processing-old-style-function-dec.patch
+    - 0004-don-t-pull-in-llvm-namespace.patch
 
 build:
   number: 0

@@ -1,0 +1,24 @@
+From 9448186f6f8b7dd0f059ad129e7c545c330a9ce3 Mon Sep 17 00:00:00 2001
+From: Yang Chen <chenyang@cs.utah.edu>
+Date: Thu, 6 Jul 2017 21:03:48 -0700
+Subject: [PATCH] make sure the function def has a body
+
+---
+ clang_delta/ReplaceFunctionDefWithDecl.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/clang_delta/ReplaceFunctionDefWithDecl.cpp b/clang_delta/ReplaceFunctionDefWithDecl.cpp
+index c7e8789..2662a23 100644
+--- a/clang_delta/ReplaceFunctionDefWithDecl.cpp
++++ b/clang_delta/ReplaceFunctionDefWithDecl.cpp
+@@ -52,6 +52,7 @@ bool ReplaceFunctionDefWithDeclCollectionVisitor::VisitFunctionDecl(
+     return true;
+ 
+   if (FD->isThisDeclarationADefinition() && 
++      FD->hasBody() &&
+       !FD->isDeleted() &&
+       !FD->isDefaulted() &&
+       !ConsumerInstance->isMacroExpansion(FD))
+-- 
+2.10.1
+

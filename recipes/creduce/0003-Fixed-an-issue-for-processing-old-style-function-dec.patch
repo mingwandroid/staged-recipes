@@ -1,0 +1,35 @@
+From b55710ce2053824562a63bf2fa34226b2fb0ce50 Mon Sep 17 00:00:00 2001
+From: Yang Chen <chenyang@cs.utah.edu>
+Date: Wed, 13 Sep 2017 00:46:14 -0700
+Subject: [PATCH] Fixed an issue for processing old-style function declarations
+
+---
+ clang_delta/RewriteUtils.cpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/clang_delta/RewriteUtils.cpp b/clang_delta/RewriteUtils.cpp
+index 7a78048..9e36524 100644
+--- a/clang_delta/RewriteUtils.cpp
++++ b/clang_delta/RewriteUtils.cpp
+@@ -26,7 +26,6 @@
+ #include "clang/AST/ExprCXX.h"
+ 
+ using namespace clang;
+-using namespace llvm;
+ 
+ static const char *DefaultIndentStr = "    ";
+ 
+@@ -266,7 +265,9 @@ bool RewriteUtils::removeParamFromFuncDecl(const ParmVarDecl *PV,
+   }
+ 
+   TransAssert(StartBuf && "Invalid start buffer!");
+-  while (*StartBuf != ',') {
++  // FIXME: This isn't really correct for processing old-style function
++  // declarations, but just let's live with it for now.
++  while (*StartBuf != ',' && *StartBuf != ';') {
+     StartBuf++;
+     NewRangeSize++;
+   }
+-- 
+2.10.1
+
