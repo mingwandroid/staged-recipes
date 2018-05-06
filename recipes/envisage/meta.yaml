@@ -1,0 +1,96 @@
+{% set name = "envisage" %}
+{% set version = "4.6.0" %}
+{% set file_ext = "tar.gz" %}
+{% set hash_type = "sha256" %}
+{% set hash_value = "6402079190ce8186534d7e6ba7315bff7dc59c13ee6465c52d4a8239159c5fea" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ version }}'
+
+source:
+  fn: '{{ name }}-{{ version }}.{{ file_ext }}'
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ file_ext }}
+  '{{ hash_type }}': '{{ hash_value }}'
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  host:
+    - python
+    - setuptools
+    - apptools
+    - traits
+  run:
+    - python
+    - setuptools
+    - apptools
+    - traits
+
+test:
+  imports:
+    - envisage
+    - envisage.developer
+    - envisage.developer.charm
+    - envisage.developer.code_browser
+    - envisage.developer.code_browser.tests
+    - envisage.developer.ui
+    - envisage.developer.ui.perspective
+    - envisage.developer.ui.view
+    - envisage.plugins
+    - envisage.plugins.debug
+    - envisage.plugins.event_manager
+    - envisage.plugins.ipython_kernel
+    - envisage.plugins.ipython_kernel.tests
+    - envisage.plugins.ipython_shell
+    - envisage.plugins.ipython_shell.actions
+    - envisage.plugins.ipython_shell.view
+    - envisage.plugins.python_shell
+    - envisage.plugins.python_shell.view
+    - envisage.plugins.refresh_code
+    - envisage.plugins.remote_editor
+    - envisage.plugins.remote_editor.communication
+    - envisage.plugins.remote_editor.communication.tests
+    - envisage.plugins.remote_editor.editor_plugins
+    - envisage.plugins.remote_editor.editor_plugins.editra
+    - envisage.plugins.tasks
+    - envisage.plugins.text_editor
+    - envisage.plugins.text_editor.editor
+    - envisage.plugins.update_checker
+    - envisage.plugins.update_checker.tests
+    - envisage.resource
+    - envisage.resource.tests
+    - envisage.tests
+    - envisage.ui
+    - envisage.ui.action
+    - envisage.ui.action.tests
+    - envisage.ui.single_project
+    - envisage.ui.single_project.action
+    - envisage.ui.single_project.editor
+    - envisage.ui.single_project.view
+    - envisage.ui.tasks
+    - envisage.ui.tasks.action
+    - envisage.ui.workbench
+    - envisage.ui.workbench.action
+
+about:
+  home: http://docs.enthought.com/envisage
+  license: BSD License
+  license_family: BSD
+  license_file: ''
+  summary: extensible application framework
+  description: "==========================================\nenvisage: extensible application framework\n==========================================\n\n.. image:: https://travis-ci.org/enthought/envisage.png\n\
+    \   :alt: Build Status\n   :target: https://travis-ci.org/enthought/envisage\n\n.. image:: http://codecov.io/github/enthought/envisage/coverage.svg?branch=master \n   :target: http://codecov.io/github/enthought/envisage?branch=master\n\
+    \nhttp://docs.enthought.com/envisage\n\nEnvisage is a Python-based framework for building extensible applications,\nthat is, applications whose functionality can be extended by adding \"plug-ins\".\n\
+    Envisage provides a standard mechanism for features to be added to an\napplication, whether by the original developer or by someone else. In fact,\nwhen you build an application using Envisage, the\
+    \ entire application consists\nprimarily of plug-ins. In this respect, it is similar to the Eclipse and\nNetbeans frameworks for Java applications.\n\nEach plug-in is able to:\n\n- Advertise where and\
+    \ how it can be extended (its \"extension points\").\n- Contribute extensions to the extension points offered by other plug-ins.\n- Create and share the objects that perform the real work of the application\n\
+    \  (\"services\").\n\nThe Envisage project provides the basic machinery of the Envisage\nframework. This project contains no plug-ins. You are free to use:\n\n- plug-ins from the EnvisagePlugins project\n\
+      - plug-ins from other ETS projects that expose their functionality as plug-ins\n- plug-ins that you create yourself\n\nPrerequisites\n-------------\n\n* `traits <https://github.com/enthought/traits>`_"
+  doc_url: ''
+  dev_url: ''
+
+extra:
+  recipe-maintainers: ''
