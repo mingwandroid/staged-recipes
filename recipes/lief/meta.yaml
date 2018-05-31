@@ -1,0 +1,103 @@
+{% set version = "0.8.3" %}
+
+package:
+  name: lief-suite
+  version: {{ version }}
+
+source:
+  # - git_url: https://github.com/lief-project/LIEF
+  #   git_tag: {{ version }}
+  - url: https://github.com/lief-project/LIEF/archive/{{ version }}.tar.gz
+    fn: lief-{{ version }}.tar.gz
+    sha256: 7a5b010a7411eb1756102efccd5352a78203db9052aca0185a61dc2e911c9a59
+  # - url: https://github.com/opencv/opencv_contrib/archive/{{ version }}.tar.gz
+  #   fn: opencv_contrib-{{ version }}.tar.gz
+  #   sha256: 298c69ee006d7675e1ff9d371ba8b0d9e7e88374bb7ba0f9d0789851d352ec6e
+  #   folder: opencv_contrib-{{ version }}
+
+build:
+  number: 0
+  # Python 2.7 is not supported on Windows
+  # skip: True  # [win and py27]
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  # - git
+    - m2-filesystem         # [win]
+    - m2w64-pkg-config      # [win]
+    - pkg-config            # [not win]
+    - jom                   # [win]
+    - cmake
+    - make                  # [unix]
+
+outputs:
+  - name: py-lief
+    script: install-py-lief.sh
+    build:
+      run_exports:
+        - {{ pin_subpackage('py-lief', max_pin='x.x') }}
+      ignore_run_exports:
+        - ffmpeg
+        - freetype
+        - harfbuzz
+        - hdf5
+        - jasper
+        - jpeg
+        - libpng
+        - libprotobuf
+        - libtiff
+        - zlib
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+      # - git
+        - m2-filesystem         # [win]
+        - m2w64-pkg-config      # [win]
+        - pkg-config            # [not win]
+        - jom                   # [win]
+        - cmake
+        - make                  # [unix]
+      host:
+        - {{ pin_subpackage('liblief', exact=True) }}
+        - python
+        - setuptools
+      run:
+        - {{ pin_subpackage('liblief', exact=True) }}
+        - python
+    test:
+      requires:
+        - {{ compiler('cxx') }}
+      imports:
+        - lief
+
+  - name: liblief
+    script: install-liblief.sh
+    build:
+      run_exports:
+        - {{ pin_subpackage('liblief', max_pin='x.x') }}
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+      # - git
+        - m2-filesystem         # [win]
+        - m2w64-pkg-config      # [win]
+        - pkg-config            # [not win]
+        - jom                   # [win]
+        - cmake
+        - make                  # [unix]
+
+about:
+  home: https://lief.quarkslab.com/
+  license: Apache 2.0
+  license_family: Apache
+  summary: A cross platform library to parse, modify and abstract ELF, PE and MachO formats.
+  description: |
+    It turns out that many projects need to parse executable formats and they usually re-implement
+    their own parser. Moreover these parsers are usually bound to one language.
+    LIEF attempts to fill this void.
+  doc_url: https://lief.quarkslab.com/doc/stable/index.html
+  doc_source_url: https://github.com/lief-project/LIEF/tree/master/doc
