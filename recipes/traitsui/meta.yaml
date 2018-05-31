@@ -23,6 +23,7 @@ requirements:
     - setuptools
     - traits
     - pyface >=6.0.0
+    - pyqt
   run:
     - python
     - setuptools
