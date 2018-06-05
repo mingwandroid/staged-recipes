@@ -65,7 +65,7 @@ outputs:
   - name: liblief
     script: install-liblief.sh
     build:
-      missing_dso_whitelist:
+      missing_dso_whitelist:          # [linux]
         - '**libgmodule-2.0.so.0'     # [linux]
         - '**libgdk-x11-2.0.so.0'     # [linux]
         - '**libgdk_pixbuf-2.0.so.0'  # [linux]
