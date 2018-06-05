@@ -68,3 +68,4 @@ pushd api/python
 popd
 popd
 
+[[ -d "${PREFIX}"/share/LIEF/examples ]] && rm -rf "${PREFIX}"/share/LIEF/examples/

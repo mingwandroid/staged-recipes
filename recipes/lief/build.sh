@@ -34,5 +34,3 @@ if [[ ! -f Makefile ]]; then
 fi
 
 make -j${CPU_COUNT} ${VERBOSE_CM}
-
-rm -rf "${PREFIX}"/share/LIEF/examples/
