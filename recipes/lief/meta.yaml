@@ -16,7 +16,7 @@ source:
   #   folder: opencv_contrib-{{ version }}
 
 build:
-  number: 0
+  number: 1
   # Python 2.7 is not supported on Windows
   # skip: True  # [win and py27]
 
@@ -65,22 +65,22 @@ outputs:
   - name: liblief
     script: install-liblief.sh
     build:
-      missing_dso_whitelist:          # [linux]
-        - '**libgmodule-2.0.so.0'     # [linux]
-        - '**libgdk-x11-2.0.so.0'     # [linux]
-        - '**libgdk_pixbuf-2.0.so.0'  # [linux]
-        - '**libpango-1.0.so.0'       # [linux]
-        - '**libpangocairo-1.0.so.0'  # [linux]
-        - '**libgio-2.0.so.0'         # [linux]
-        - '**libglib-2.0.so.0'        # [linux]
-        - '**libpangoft2-1.0.so.0'    # [linux]
-        - '**libatk-1.0.so.0'         # [linux]
-        - '**libgobject-2.0.so.0'     # [linux]
-        - '**libgtk-x11-2.0.so.0'     # [linux]
-        - '**libgthread-2.0.so.0'     # [linux]
-        - '**libfontconfig.so.1'      # [linux]
-        - '**libcairo.so.2'           # [linux]
-        - '**libfreetype.so.6'        # [linux]
+#      missing_dso_whitelist:
+#        - '**libgmodule-2.0.so.0'
+#        - '**libgdk-x11-2.0.so.0'
+#        - '**libgdk_pixbuf-2.0.so.0'
+#        - '**libpango-1.0.so.0'
+#        - '**libpangocairo-1.0.so.0'
+#        - '**libgio-2.0.so.0'
+#        - '**libglib-2.0.so.0'
+#        - '**libpangoft2-1.0.so.0'
+#        - '**libatk-1.0.so.0'
+#        - '**libgobject-2.0.so.0'
+#        - '**libgtk-x11-2.0.so.0'
+#        - '**libgthread-2.0.so.0'
+#        - '**libfontconfig.so.1'
+#        - '**libcairo.so.2'
+#        - '**libfreetype.so.6'
       run_exports:
         - {{ pin_subpackage('liblief', max_pin='x.x') }}
     requirements:

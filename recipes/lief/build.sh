@@ -14,7 +14,7 @@ if [[ ! -f Makefile ]]; then
 
   cmake .. -LAH                                                             \
     -DCMAKE_BUILD_TYPE="Release"                                            \
-    -DCMAKE_INSTALL_PREFIX=${PREFIX}                                        \
+    -DCMAKE_INSTALL_PREFIX="${PREFIX}"                                      \
     -DCMAKE_INSTALL_LIBDIR=lib                                              \
     -DCMAKE_SKIP_RPATH=ON                                                   \
     -DCMAKE_AR="${AR}"                                                      \
@@ -34,3 +34,5 @@ if [[ ! -f Makefile ]]; then
 fi
 
 make -j${CPU_COUNT} ${VERBOSE_CM}
+
+rm -rf "${PREFIX}"/share/LIEF/examples/
