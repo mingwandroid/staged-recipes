@@ -13,6 +13,9 @@ cd build
 if [[ ! -f Makefile ]]; then
 
   cmake .. -LAH                         \
+    -DLIEF_VERSION_MAJOR=0              \
+    -DLIEF_VERSION_MINOR=9              \
+    -DLIEF_VERSION_PATCH=0              \
     -DCMAKE_BUILD_TYPE="Release"        \
     -DCMAKE_INSTALL_PREFIX="${PREFIX}"  \
     -DCMAKE_INSTALL_LIBDIR=lib          \

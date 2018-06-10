@@ -1,15 +1,15 @@
-{% set version = "0.9" %}
+{% set version = "0.9.0" %}
 
 package:
   name: lief-suite
   version: {{ version }}
 
 source:
-  - git_url: https://github.com/lief-project/LIEF
-    git_tag: master
-  # - url: https://github.com/lief-project/LIEF/archive/{{ version }}.tar.gz
-  #   fn: lief-{{ version }}.tar.gz
-  #   sha256: 7a5b010a7411eb1756102efccd5352a78203db9052aca0185a61dc2e911c9a59
+  # - git_url: https://github.com/lief-project/LIEF
+  #   git_tag: master
+  - url: https://github.com/lief-project/LIEF/archive/{{ version }}.tar.gz
+    fn: lief-{{ version }}.tar.gz
+    sha256: 8f1a12d69d9f6bd8404d4f5809549d1c7f3138cacf3bccd1192cb4f46bfb9eb7
 
 build:
   number: 0
