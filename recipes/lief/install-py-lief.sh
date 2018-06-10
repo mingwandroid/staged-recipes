@@ -27,9 +27,11 @@ pushd build
     -DCMAKE_STRIP="${STRIP}"                                                \
     -DLIEF_PYTHON_API=ON                                                    \
     -DLIEF_INSTALL_PYTHON=ON                                                \
+    -DPYTHON_EXECUTABLE="${PYTHON}"                                         \
     -DPYTHON_INCLUDE_DIR:PATH=$(${PYTHON} -c 'from sysconfig import get_paths; print(get_paths()["include"])')  \
+    -DPYTHON_LIBRARIES="${PREFIX}"/lib/libpython${PY_VER}.dylib             \
     -DPYTHON_LIBRARY="${PREFIX}"/lib/libpython${PY_VER}.dylib               \
-    -DPYTHON_LIBRARY_DEBUG="${PREFIX}"/lib/libpython${PY_VER}.dylib         \
+    -D_PYTHON_LIBRARY="${PREFIX}"/lib/libpython${PY_VER}.dylib              \
     -DPYTHON_VERSION=${PY_VER}                                              \
     "${CMAKE_EXTRA_ARGS[@]}"
 

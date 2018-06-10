@@ -37,7 +37,7 @@ cmake .. -LAH -G "NMake Makefiles JOM"                                      ^
     -DPYTHON_LIBRARY_DEBUG=%PREFIX%\libs\python%CONDA_PY%.lib               ^
     -DPYTHON_INCLUDE_DIR:PATH=%PREFIX%\include
 
-cmake --build . --config Release --target CLEAN -- VERBOSE=1
+cmake --build . --config Release --target CLEAN -- VERBOSE=1  -- -j%CPU_COUNT%
 cmake --build . --config Release --target INSTALL -- VERBOSE=1
 
 dir /s .

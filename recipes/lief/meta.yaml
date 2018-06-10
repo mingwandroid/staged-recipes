@@ -1,22 +1,18 @@
-{% set version = "0.8.3" %}
+{% set version = "0.9" %}
 
 package:
   name: lief-suite
   version: {{ version }}
 
 source:
-  # - git_url: https://github.com/lief-project/LIEF
-  #   git_tag: {{ version }}
-  - url: https://github.com/lief-project/LIEF/archive/{{ version }}.tar.gz
-    fn: lief-{{ version }}.tar.gz
-    sha256: 7a5b010a7411eb1756102efccd5352a78203db9052aca0185a61dc2e911c9a59
-  # - url: https://github.com/opencv/opencv_contrib/archive/{{ version }}.tar.gz
-  #   fn: opencv_contrib-{{ version }}.tar.gz
-  #   sha256: 298c69ee006d7675e1ff9d371ba8b0d9e7e88374bb7ba0f9d0789851d352ec6e
-  #   folder: opencv_contrib-{{ version }}
+  - git_url: https://github.com/lief-project/LIEF
+    git_tag: master
+  # - url: https://github.com/lief-project/LIEF/archive/{{ version }}.tar.gz
+  #   fn: lief-{{ version }}.tar.gz
+  #   sha256: 7a5b010a7411eb1756102efccd5352a78203db9052aca0185a61dc2e911c9a59
 
 build:
-  number: 1
+  number: 0
   # Python 2.7 is not supported on Windows
   # lief_easyloggingpp\src\easylogging++.h(327) : fatal error C1189: #error :  "C++0x (or higher) support not detected! (Is `-std=c++11' missing?)
   skip: True  # [win and py27]
@@ -42,7 +38,7 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-      # - git
+        - git
         - pkg-config            # [not win]
         - jom                   # [win]
         - cmake
@@ -86,7 +82,7 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-      # - git
+        - git
         - pkg-config            # [not win]
         - jom                   # [win]
         - cmake
