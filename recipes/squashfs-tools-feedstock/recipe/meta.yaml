@@ -13,7 +13,7 @@ source:
   # I have disabled them for now as the rebase is still very much WIP.
   # They came from:
   #  http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3-12.debian.tar.xz
-  # patches:
+  patches:
   #   - 0001-CVE-2015-4645-and-CVE-2015-4646.patch
   #   - 0002-unsquashfs-add-support-for-LZMA-magics.patch
   #   - 0003-add-fstime-to-unsquashfs-to-extract-the-fs-superbloc.patch
@@ -22,7 +22,11 @@ source:
   #   - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
   #   - 0007-numeric-uid-gid_to_unsquashfs.patch
   #   - 0008-remove-frag_deflator_thread.patch
-  #   - 0009-Avoid-sysmacros.h-on-__APPLE__.patch
+    - 0009-Avoid-sys-sys-info-macros-.h-on-__APPLE__.patch
+    - 0010-Add-implementation-of-get_physical_memory-for-macOS.patch
+    - 0011-Add-sigtimedwait-impl-for-macOS-license-unknown.patch
+    - 0012-Add-sigwaitinfo-impl-for-macOS.patch
+    - 0013-Add-macosx.h-from-https-github.com-pieceofsummer-squ.patch
 
 build:
   number: 0

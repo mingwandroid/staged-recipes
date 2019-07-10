@@ -1,0 +1,57 @@
+From ea6ef22e8101d496b585144924abe72b751f6627 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Wed, 10 Jul 2019 12:35:31 +0200
+Subject: [PATCH 12/12] Add macosx.h from
+ https://github.com/pieceofsummer/squashfs-tools
+
+Though I modified it a bit.
+---
+ squashfs-tools/macosx.h | 23 +++++++++++++++++++++++
+ squashfs-tools/xattr.c  |  1 +
+ 2 files changed, 24 insertions(+)
+ create mode 100644 squashfs-tools/macosx.h
+
+diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
+new file mode 100644
+index 0000000..9f9533d
+--- /dev/null
++++ b/squashfs-tools/macosx.h
+@@ -0,0 +1,23 @@
++#ifndef SQUASHFS_MACOSX
++#define SQUASHFS_MACOSX 1
++
++#if defined(__MACH__)
++
++#define strdupa(s)   strdup(s)
++
++/*
++do not track info (because of sigtimedwait/sigwaitinfo)
++#define SQUASHFS_DISABLE_INFO  1
++#define disable_info()
++#define update_info(arg)
++#define init_info()
++*/
++
++/* extended attribute manipulation */
++#define llistxattr(path, buf, size)   listxattr((path), (buf), (size), XATTR_NOFOLLOW)
++#define lgetxattr(path, name, value, size)   getxattr((path), (name), (value), (size), 0, XATTR_NOFOLLOW)
++#define lsetxattr(path, name, value, size, flags)   setxattr((path), (name), (value), (size), 0, (flags) | XATTR_NOFOLLOW)
++
++#endif
++
++#endif
+diff --git a/squashfs-tools/xattr.c b/squashfs-tools/xattr.c
+index dddba7b..b984b8d 100644
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -42,6 +42,7 @@
+ #include "xattr.h"
+ #include "error.h"
+ #include "progressbar.h"
++#include "macosx.h"
+ 
+ /* compressed xattr table */
+ static char *xattr_table = NULL;
+-- 
+2.20.1 (Apple Git-117)
+
