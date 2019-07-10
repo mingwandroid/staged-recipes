@@ -1,0 +1,288 @@
+From 7a0868b307a17c2e316e0a4459ea5a9a2e3afa73 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Wed, 10 Jul 2019 12:35:31 +0200
+Subject: [PATCH 13/13] Add macosx.h from
+ https://github.com/pieceofsummer/squashfs-tools
+
+Though I modified it a bit.
+---
+ squashfs-tools/Makefile           |  7 +++-
+ squashfs-tools/action.c           |  2 +
+ squashfs-tools/info.c             | 14 +------
+ squashfs-tools/macosx.c           | 63 +++++++++++++++++++++++++++++++
+ squashfs-tools/macosx.h           | 26 +++++++++++++
+ squashfs-tools/unsquashfs_info.c  | 49 +-----------------------
+ squashfs-tools/unsquashfs_xattr.c |  2 +
+ squashfs-tools/xattr.c            |  1 +
+ 8 files changed, 103 insertions(+), 61 deletions(-)
+ create mode 100644 squashfs-tools/macosx.c
+ create mode 100644 squashfs-tools/macosx.h
+
+diff --git a/squashfs-tools/Makefile b/squashfs-tools/Makefile
+index b2a1336..4d1888d 100644
+--- a/squashfs-tools/Makefile
++++ b/squashfs-tools/Makefile
+@@ -133,10 +133,10 @@ INSTALL_DIR = /usr/local/bin
+ 
+ MKSQUASHFS_OBJS = mksquashfs.o read_fs.o action.o swap.o pseudo.o compressor.o \
+ 	sort.o progressbar.o read_file.o info.o restore.o process_fragments.o \
+-	caches-queues-lists.o
++	caches-queues-lists.o macosx.o
+ 
+ UNSQUASHFS_OBJS = unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o \
+-	unsquash-4.o swap.o compressor.o unsquashfs_info.o
++	unsquash-4.o swap.o compressor.o unsquashfs_info.o macosx.o
+ 
+ CFLAGS ?= -O2
+ CFLAGS += $(EXTRA_CFLAGS) $(INCLUDEDIR) -D_FILE_OFFSET_BITS=64 \
+@@ -327,6 +327,9 @@ unsquashfs_xattr.o: unsquashfs_xattr.c unsquashfs.h squashfs_fs.h xattr.h
+ 
+ unsquashfs_info.o: unsquashfs.h squashfs_fs.h
+ 
++macosx.o: macosx.h macosx.c
++
++
+ .PHONY: clean
+ clean:
+ 	-rm -f *.o mksquashfs unsquashfs
+diff --git a/squashfs-tools/action.c b/squashfs-tools/action.c
+index 4b06ccb..87bcc2b 100644
+--- a/squashfs-tools/action.c
++++ b/squashfs-tools/action.c
+@@ -44,6 +44,8 @@
+ #include "error.h"
+ #include "fnmatch_compat.h"
+ 
++#include "macosx.h"
++
+ /*
+  * code to parse actions
+  */
+diff --git a/squashfs-tools/info.c b/squashfs-tools/info.c
+index 1f0128e..7734edd 100644
+--- a/squashfs-tools/info.c
++++ b/squashfs-tools/info.c
+@@ -43,6 +43,8 @@
+ #include "progressbar.h"
+ #include "caches-queues-lists.h"
+ 
++#include "macosx.h"
++
+ static int silent = 0;
+ static struct dir_ent *ent = NULL;
+ 
+@@ -130,18 +132,6 @@ void dump_state()
+ 	enable_progress_bar();
+ }
+ 
+-#if defined(__MACH__)
+-int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+-{
+-    int sig = -1;
+-
+-    if ( sigwait(set, &sig) < 0 )
+-        return -1;
+-
+-    return sig;
+-}
+-#endif
+-
+ void *info_thrd(void *arg)
+ {
+ 	sigset_t sigmask;
+diff --git a/squashfs-tools/macosx.c b/squashfs-tools/macosx.c
+new file mode 100644
+index 0000000..03d7ea6
+--- /dev/null
++++ b/squashfs-tools/macosx.c
+@@ -0,0 +1,63 @@
++#if defined(__MACH__)
++
++#include <pthread.h>
++#include <sys/ioctl.h>
++#include <unistd.h>
++#include <signal.h>
++#include <sys/time.h>
++#include <stdio.h>
++#include <math.h>
++#include <stdarg.h>
++#include <errno.h>
++#include <stdlib.h>
++#include <dirent.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <string.h>
++
++/* Taken from https://groups.google.com/forum/#!topic/comp.unix.programmer/JlTIncgY-vg */
++int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout) {
++        struct timespec elapsed = { 0, 0 }, rem;
++        sigset_t pending;
++        int signo;
++        long ns;
++
++        do {
++                sigpending(&pending); /* doesn't clear pending queue */
++
++                for (signo = 1; signo < NSIG; signo++) {
++                        if (sigismember(set, signo) && sigismember(&pending, signo)) {
++                                if (info) {
++                                        memset(info, 0, sizeof *info);
++                                        info->si_signo = signo;
++                                }
++
++                                return signo;
++                        }
++                }
++
++                ns = 200000000L; /* 2/10th second */
++                nanosleep(&(struct timespec){ 0, ns }, &rem);
++                ns -= rem.tv_nsec;
++                elapsed.tv_sec += (elapsed.tv_nsec + ns) / 1000000000L;
++                elapsed.tv_nsec = (elapsed.tv_nsec + ns) % 1000000000L;
++        } while (elapsed.tv_sec < timeout->tv_sec || (elapsed.tv_sec == timeout->tv_sec && elapsed.tv_nsec < timeout->tv_nsec));
++
++        errno = EAGAIN;
++
++        return -1;
++} /* sigtimedwait() */
++#endif
++
++#if defined(__MACH__)
++int sigwaitinfo(const sigset_t *set, siginfo_t *info)
++{
++    int sig = -1;
++
++    if ( sigwait(set, &sig) < 0 )
++        return -1;
++
++    return sig;
++}
++#endif
++
+diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
+new file mode 100644
+index 0000000..52fc16c
+--- /dev/null
++++ b/squashfs-tools/macosx.h
+@@ -0,0 +1,26 @@
++#ifndef SQUASHFS_MACOSX
++#define SQUASHFS_MACOSX 1
++
++#if defined(__MACH__)
++
++#define strdupa(s) strdup(s)
++
++/*
++do not track info (because of sigtimedwait/sigwaitinfo)
++#define SQUASHFS_DISABLE_INFO  1
++#define disable_info()
++#define update_info(arg)
++#define init_info()
++*/
++
++/* extended attribute manipulation */
++#define llistxattr(path, buf, size)   listxattr((path), (buf), (size), XATTR_NOFOLLOW)
++#define lgetxattr(path, name, value, size)   getxattr((path), (name), (value), (size), 0, XATTR_NOFOLLOW)
++#define lsetxattr(path, name, value, size, flags)   setxattr((path), (name), (value), (size), 0, (flags) | XATTR_NOFOLLOW)
++
++extern int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout);
++extern int sigwaitinfo(const sigset_t *set, siginfo_t *info);
++
++#endif
++
++#endif
+diff --git a/squashfs-tools/unsquashfs_info.c b/squashfs-tools/unsquashfs_info.c
+index 30abfd7..aedd632 100644
+--- a/squashfs-tools/unsquashfs_info.c
++++ b/squashfs-tools/unsquashfs_info.c
+@@ -41,6 +41,8 @@
+ #include "unsquashfs.h"
+ #include "error.h"
+ 
++#include "macosx.h"
++
+ static int silent = 0;
+ char *pathname = NULL;
+ 
+@@ -94,53 +96,6 @@ void dump_state()
+ }
+ 
+ 
+-#if defined(__MACH__)
+-/* Taken from https://groups.google.com/forum/#!topic/comp.unix.programmer/JlTIncgY-vg */
+-int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout) {
+-        struct timespec elapsed = { 0, 0 }, rem;
+-        sigset_t pending;
+-        int signo;
+-        long ns;
+-
+-        do {
+-                sigpending(&pending); /* doesn't clear pending queue */
+-
+-                for (signo = 1; signo < NSIG; signo++) {
+-                        if (sigismember(set, signo) && sigismember(&pending, signo)) {
+-                                if (info) {
+-                                        memset(info, 0, sizeof *info);
+-                                        info->si_signo = signo;
+-                                }
+-
+-                                return signo;
+-                        }
+-                }
+-
+-                ns = 200000000L; /* 2/10th second */
+-                nanosleep(&(struct timespec){ 0, ns }, &rem);
+-                ns -= rem.tv_nsec;
+-                elapsed.tv_sec += (elapsed.tv_nsec + ns) / 1000000000L;
+-                elapsed.tv_nsec = (elapsed.tv_nsec + ns) % 1000000000L;
+-        } while (elapsed.tv_sec < timeout->tv_sec || (elapsed.tv_sec == timeout->tv_sec && elapsed.tv_nsec < timeout->tv_nsec));
+-
+-        errno = EAGAIN;
+-
+-        return -1;
+-} /* sigtimedwait() */
+-#endif
+-
+-#if defined(__MACH__)
+-int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+-{
+-    int sig = -1;
+-
+-    if ( sigwait(set, &sig) < 0 )
+-        return -1;
+-
+-    return sig;
+-}
+-#endif
+-
+ void *info_thrd(void *arg)
+ {
+ 	sigset_t sigmask;
+diff --git a/squashfs-tools/unsquashfs_xattr.c b/squashfs-tools/unsquashfs_xattr.c
+index 59f4aae..e889377 100644
+--- a/squashfs-tools/unsquashfs_xattr.c
++++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -27,6 +27,8 @@
+ 
+ #include <sys/xattr.h>
+ 
++#include "macosx.h"
++
+ #define NOSPACE_MAX 10
+ 
+ extern int root_process;
+diff --git a/squashfs-tools/xattr.c b/squashfs-tools/xattr.c
+index dddba7b..b984b8d 100644
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -42,6 +42,7 @@
+ #include "xattr.h"
+ #include "error.h"
+ #include "progressbar.h"
++#include "macosx.h"
+ 
+ /* compressed xattr table */
+ static char *xattr_table = NULL;
+-- 
+2.20.1 (Apple Git-117)
+

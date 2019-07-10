@@ -1,0 +1,58 @@
+From 5e6a3a6d366020d1d1166fe4e3cd45c5936e1d89 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Wed, 10 Jul 2019 12:27:53 +0200
+Subject: [PATCH 12/12] Add sigwaitinfo impl for macOS
+
+---
+ squashfs-tools/info.c            | 11 +++++++++++
+ squashfs-tools/unsquashfs_info.c | 12 ++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/squashfs-tools/info.c b/squashfs-tools/info.c
+index 7968c77..1f0128e 100644
+--- a/squashfs-tools/info.c
++++ b/squashfs-tools/info.c
+@@ -130,6 +130,17 @@ void dump_state()
+ 	enable_progress_bar();
+ }
+ 
++#if defined(__MACH__)
++int sigwaitinfo(const sigset_t *set, siginfo_t *info)
++{
++    int sig = -1;
++
++    if ( sigwait(set, &sig) < 0 )
++        return -1;
++
++    return sig;
++}
++#endif
+ 
+ void *info_thrd(void *arg)
+ {
+diff --git a/squashfs-tools/unsquashfs_info.c b/squashfs-tools/unsquashfs_info.c
+index 68a0075..30abfd7 100644
+--- a/squashfs-tools/unsquashfs_info.c
++++ b/squashfs-tools/unsquashfs_info.c
+@@ -129,6 +129,18 @@ int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *ti
+ } /* sigtimedwait() */
+ #endif
+ 
++#if defined(__MACH__)
++int sigwaitinfo(const sigset_t *set, siginfo_t *info)
++{
++    int sig = -1;
++
++    if ( sigwait(set, &sig) < 0 )
++        return -1;
++
++    return sig;
++}
++#endif
++
+ void *info_thrd(void *arg)
+ {
+ 	sigset_t sigmask;
+-- 
+2.20.1 (Apple Git-117)
+
