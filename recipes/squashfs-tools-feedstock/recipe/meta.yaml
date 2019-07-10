@@ -1,0 +1,53 @@
+package:
+  name: squashfs-tools
+  # We are coming up to a new release (epoch 3? need to be careful), so this is all very WIP.
+  version: 1!4.3.12
+
+source:
+  # url: http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3.orig.tar.gz
+  git_url: https://github.com/plougher/squashfs-tools
+  # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
+  # source of patches both for security (see the first one) and also for features and fixes
+  # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
+  # The original patches, against Debian's 1:4.3.12 version are in the debian folder.
+  # I have disabled them for now as the rebase is still very much WIP.
+  # They came from:
+  #  http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3-12.debian.tar.xz
+  # patches:
+  #   - 0001-CVE-2015-4645-and-CVE-2015-4646.patch
+  #   - 0002-unsquashfs-add-support-for-LZMA-magics.patch
+  #   - 0003-add-fstime-to-unsquashfs-to-extract-the-fs-superbloc.patch
+  #   - 0004-unsquashfs-Preserve-times-on-symlink-inodes.patch
+  #   - 0005-If-SOURCE_DATE_EPOCH-is-set-use-that-timestamp-for-t.patch
+  #   - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
+  #   - 0007-numeric-uid-gid_to_unsquashfs.patch
+  #   - 0008-remove-frag_deflator_thread.patch
+  #   - 0009-Avoid-sysmacros.h-on-__APPLE__.patch
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - zlib
+    - xz
+    - lz4-c
+    - lzo
+    - zstd
+
+about:
+  # Maybe:
+  # home: https://packages.debian.org/sid/squashfs-tools
+  home: https://github.com/plougher/squashfs-tools
+  license: GPL-2.0
+  license_file: COPYING
+  summary: tools to create and extract Squashfs filesystems ({Rasp,De}bian)
+  description: |
+    tools to create and extract Squashfs filesystems
+    with Debian patches and good compression support (only LZMA unsupported)
+  dev_url: https://github.com/plougher/squashfs-tools
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
+    # I took the liberty here, @jjhelmus, let me know if you are not up for it.
+    - jjhelmus

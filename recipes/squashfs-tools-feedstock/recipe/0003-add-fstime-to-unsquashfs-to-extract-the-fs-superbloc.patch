@@ -1,0 +1,180 @@
+From 62a4a513fdfa813d6aed8387c093a1a773a26f6b Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@canonical.com>
+Date: Wed, 10 Jul 2019 02:09:48 +0200
+Subject: [PATCH 3/8] add -fstime to unsquashfs to extract the fs superblock
+ information
+
+and -fstime to mksquashfs to set the fs superblock time on create. This is
+ needed to support Ubuntu Store unpack and repack checks.
+---
+ squashfs-tools/mksquashfs.c | 45 ++++++++++++++++++++++++++++++++++++-
+ squashfs-tools/unsquashfs.c | 29 +++++++++++++++++++++++-
+ 2 files changed, 72 insertions(+), 2 deletions(-)
+
+diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
+index 509c80e..26a4910 100644
+--- a/squashfs-tools/mksquashfs.c
++++ b/squashfs-tools/mksquashfs.c
+@@ -83,6 +83,8 @@ int quiet = FALSE;
+ int fd;
+ struct squashfs_super_block sBlk;
+ 
++time_t forced_time = (time_t)0;
++
+ /* filesystem flags for building */
+ int comp_opts = FALSE;
+ int no_xattrs = XATTR_DEF;
+@@ -5100,6 +5102,34 @@ int parse_numberll(char *start, long long *res, int size)
+ }
+ 
+ 
++int parse_time(char *start, time_t *res)
++{
++	char *end;
++	long number = strtol(start, &end, 10);
++
++	/*
++	 * http://www.gnu.org/software/libc/manual/html_node/Simple-Calendar-Time.html
++	 * states that "In the GNU C Library, time_t is equivalent to long
++	 * int. In other systems, time_t might be either an integer or
++	 * floating-point type." As such, because strtol returns a long and
++	 * because a valid value of time_t is 0 or higher, we need only check
++	 * for a negative value. For this patch to be portable, we would need
++	 * to account for other implementations of time_t.
++	 */
++
++	/* Reject negative numbers as invalid */
++	if(number < 0)
++		return 0;
++
++	if(end[0] != '\0')
++		/* trailing junk after number */
++		return 0;
++
++	*res = (time_t) number;
++	return 1;
++}
++
++
+ int parse_number(char *start, int *res, int size)
+ {
+ 	long long number;
+@@ -5752,6 +5782,12 @@ print_compressor_options:
+ 				exit(1);
+ 			}	
+ 			root_name = argv[i];
++		} else if(strcmp(argv[i], "-fstime") == 0) {
++			if((++i == argc) || !parse_time(argv[i], &forced_time)) {
++				ERROR("%s: -fstime missing or invalid "
++					"number\n", argv[0]);
++				exit(1);
++			}
+ 		} else if(strcmp(argv[i], "-version") == 0) {
+ 			VERSION();
+ 		} else {
+@@ -5802,6 +5838,8 @@ printOptions:
+ 			ERROR("\t\t\tdirectory containing that directory, "
+ 				"rather than the\n");
+ 			ERROR("\t\t\tcontents of the directory\n");
++			ERROR("-fstime secs\t\tSet fs time to seconds "
++				"since epoch.  Default to current time\n");
+ 			ERROR("\nFilesystem filter options:\n");
+ 			ERROR("-p <pseudo-definition>\tAdd pseudo file "
+ 				"definition\n");
+@@ -6061,6 +6099,8 @@ printOptions:
+ 			printf("Creating %d.%d filesystem on %s, block size %d.\n",
+ 				SQUASHFS_MAJOR, SQUASHFS_MINOR,
+ 				argv[source + 1], block_size);
++               if (forced_time)
++                       printf("Setting fs time: %s\n", asctime(gmtime(&forced_time)));
+ 
+ 		/*
+ 		 * store any compressor specific options after the superblock,
+@@ -6235,7 +6275,10 @@ printOptions:
+ 	sBlk.flags = SQUASHFS_MKFLAGS(noI, noD, noF, noX, noId, no_fragments,
+ 		always_use_fragments, duplicate_checking, exportable,
+ 		no_xattrs, comp_opts);
+-	sBlk.mkfs_time = time(NULL);
++	if (forced_time)
++		sBlk.mkfs_time = (time_t)forced_time;
++	else
++		sBlk.mkfs_time = time(NULL);
+ 
+ 	disable_info();
+ 
+diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
+index 21dc6eb..21dbf85 100644
+--- a/squashfs-tools/unsquashfs.c
++++ b/squashfs-tools/unsquashfs.c
+@@ -1601,6 +1601,13 @@ void dir_scan(char *parent_name, unsigned int start_block, unsigned int offset,
+ }
+ 
+ 
++void squashfs_fstime(time_t *fstime)
++{
++	time_t mkfs_time = (time_t) sBlk.s.mkfs_time;
++	*fstime = (time_t) mkfs_time;
++}
++
++
+ void squashfs_stat(char *source)
+ {
+ 	time_t mkfs_time = (time_t) sBlk.s.mkfs_time;
+@@ -2493,12 +2500,14 @@ int parse_number(char *arg, int *res)
+ int main(int argc, char *argv[])
+ {
+ 	char *dest = "squashfs-root";
+-	int i, stat_sys = FALSE, version = FALSE;
++	int i, stat_sys = FALSE, version = FALSE, stat_fstime = FALSE;
+ 	int n;
+ 	struct pathnames *paths = NULL;
+ 	struct pathname *path = NULL;
++	long long directory_table_end;
+ 	int fragment_buffer_size = FRAGMENT_BUFFER_DEFAULT;
+ 	int data_buffer_size = DATA_BUFFER_DEFAULT;
++	time_t fstime;
+ 
+ 	pthread_mutex_init(&screen_mutex, NULL);
+ 	root_process = geteuid() == 0;
+@@ -2595,6 +2604,8 @@ int main(int argc, char *argv[])
+ 		else if(strcmp(argv[i], "-stat") == 0 ||
+ 				strcmp(argv[i], "-s") == 0)
+ 			stat_sys = TRUE;
++		else if(strcmp(argv[i], "-fstime") == 0)
++			stat_fstime = TRUE;
+ 		else if(strcmp(argv[i], "-lls") == 0 ||
+ 				strcmp(argv[i], "-ll") == 0) {
+ 			lsonly = TRUE;
+@@ -2667,6 +2678,8 @@ options:
+ 				"overwrite\n");
+ 			ERROR("\t-s[tat]\t\t\tdisplay filesystem superblock "
+ 				"information\n");
++			ERROR("\t-fstime\t\t\tdisplay filesystem superblock "
++				"time\n");
+ 			ERROR("\t-e[f] <extract file>\tlist of directories or "
+ 				"files to extract.\n\t\t\t\tOne per line\n");
+ 			ERROR("\t-da[ta-queue] <size>\tSet data queue to "
+@@ -2702,6 +2715,20 @@ options:
+ 		exit(0);
+ 	}
+ 
++	if(stat_fstime) {
++		squashfs_fstime(&fstime);
++		/*
++		 * http://www.gnu.org/software/libc/manual/html_node/Simple-Calendar-Time.html
++		 * states that "In the GNU C Library, time_t is equivalent to
++		 * long int. In other systems, time_t might be either an
++		 * integer or floating-point type." For this patch to be
++		 * portable, we would need to account for other implementations
++		 * of time_t.
++		 */
++		printf("%ld\n", (long)fstime);
++		exit(0);
++	}
++
+ 	if(!check_compression(comp))
+ 		exit(1);
+ 
+-- 
+2.20.1 (Apple Git-117)
+
