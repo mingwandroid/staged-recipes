@@ -34,6 +34,12 @@ requirements:
     - lzo
     - zstd
 
+test:
+  commands:
+    # --help fails, grep for the (gold) zstandard
+    - unsquashfs --help 2>&1 | grep zstd
+    - mksquashfs --help 2>&1 | grep zstd
+
 about:
   # Maybe:
   # home: https://packages.debian.org/sid/squashfs-tools
