@@ -24,6 +24,10 @@ source:
   #   - 0008-remove-frag_deflator_thread.patch
   #   - 0009-Avoid-sysmacros.h-on-__APPLE__.patch
 
+build:
+  number: 0
+
+
 requirements:
   build:
     - {{ compiler('c') }}
