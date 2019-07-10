@@ -1,0 +1,41 @@
+From cf23c911701bae6ac62cdb7b9740078437f9df7e Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Wed, 10 Jul 2019 02:48:50 +0200
+Subject: [PATCH 9/9] Avoid sysmacros.h on __APPLE__
+
+---
+ squashfs-tools/mksquashfs.c | 2 ++
+ squashfs-tools/unsquashfs.c | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
+index 3008f5f..5e0ec6a 100644
+--- a/squashfs-tools/mksquashfs.c
++++ b/squashfs-tools/mksquashfs.c
+@@ -35,7 +35,9 @@
+ #include <stddef.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#if !defined(__APPLE__)
+ #include <sys/sysmacros.h>
++#endif
+ #include <fcntl.h>
+ #include <errno.h>
+ #include <dirent.h>
+diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
+index f121a21..95f82c5 100644
+--- a/squashfs-tools/unsquashfs.c
++++ b/squashfs-tools/unsquashfs.c
+@@ -33,7 +33,9 @@
+ #include "fnmatch_compat.h"
+ 
+ #include <sys/sysinfo.h>
++#if !defined(__APPLE__)
+ #include <sys/sysmacros.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/time.h>
+ #include <sys/resource.h>
+-- 
+2.20.1
+

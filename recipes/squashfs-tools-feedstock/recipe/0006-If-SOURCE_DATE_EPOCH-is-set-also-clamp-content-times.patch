@@ -1,0 +1,88 @@
+From 0f2351eede079d5266b5bf1647c960760da7edcd Mon Sep 17 00:00:00 2001
+From: intrigeri <intrigeri@boum.org>
+Date: Sun, 6 Jan 2019 11:07:08 +0100
+Subject: [PATCH 6/8] If SOURCE_DATE_EPOCH is set, also clamp content
+ timestamps with that value.
+
+Based on a patch by Alexander Couzens <lynxis@fe...> posted on
+https://sourceforge.net/p/squashfs/mailman/message/34673610/
+
+Updated by Chris Lamb <lamby@debian.org> to use (time_t)0 as a
+sentinel value over -1.
+---
+ squashfs-tools/mksquashfs.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
+index b48af19..f97abc7 100644
+--- a/squashfs-tools/mksquashfs.c
++++ b/squashfs-tools/mksquashfs.c
+@@ -84,6 +84,7 @@ int fd;
+ struct squashfs_super_block sBlk;
+ 
+ time_t forced_time = (time_t)0;
++time_t content_clamp_time = (time_t)0;
+ 
+ /* filesystem flags for building */
+ int comp_opts = FALSE;
+@@ -2283,6 +2284,8 @@ restat:
+ 			pathname_reader(dir_ent), strerror(errno));
+ 		goto read_err;
+ 	}
++	if(content_clamp_time && buf2.st_mtime >= content_clamp_time)
++		buf2.st_mtime = content_clamp_time;
+ 
+ 	if(read_size != buf2.st_size) {
+ 		close(file);
+@@ -3238,7 +3241,7 @@ void dir_scan(squashfs_inode *inode, char *pathname,
+ 		buf.st_mode = (root_mode_opt) ? root_mode | S_IFDIR : S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR;
+ 		buf.st_uid = getuid();
+ 		buf.st_gid = getgid();
+-		buf.st_mtime = time(NULL);
++		buf.st_mtime = content_clamp_time ? content_clamp_time : time(NULL);
+ 		buf.st_dev = 0;
+ 		buf.st_ino = 0;
+ 		dir_ent->inode = lookup_inode2(&buf, PSEUDO_FILE_OTHER, 0);
+@@ -3247,6 +3250,12 @@ void dir_scan(squashfs_inode *inode, char *pathname,
+ 			/* source directory has disappeared? */
+ 			BAD_ERROR("Cannot stat source directory %s because %s\n",
+ 				pathname, strerror(errno));
++		if(content_clamp_time && buf.st_mtime >= content_clamp_time)
++			buf.st_mtime = content_clamp_time;
++		dir_ent->inode = lookup_inode(&buf);
++	}
++
++
+ 		if(root_mode_opt)
+ 			buf.st_mode = root_mode | S_IFDIR;
+ 
+@@ -3505,6 +3514,8 @@ struct dir_info *dir_scan1(char *filename, char *subpath,
+ 			free_dir_entry(dir_ent);
+ 			continue;
+ 		}
++		if(content_clamp_time && buf.st_mtime >= content_clamp_time)
++			buf.st_mtime = content_clamp_time;
+ 
+ 		if((buf.st_mode & S_IFMT) != S_IFREG &&
+ 					(buf.st_mode & S_IFMT) != S_IFDIR &&
+@@ -3684,7 +3695,7 @@ void dir_scan2(struct dir_info *dir, struct pseudo *pseudo)
+ 		buf.st_gid = pseudo_ent->dev->gid;
+ 		buf.st_rdev = makedev(pseudo_ent->dev->major,
+ 			pseudo_ent->dev->minor);
+-		buf.st_mtime = time(NULL);
++		buf.st_mtime = content_clamp_time ? content_clamp_time : time(NULL);
+ 		buf.st_ino = pseudo_ino ++;
+ 
+ 		if(pseudo_ent->dev->type == 'd') {
+@@ -5956,7 +5967,7 @@ printOptions:
+ 				"%lu but was found to be: %llu \n", ULONG_MAX, epoch);
+ 			EXIT_MKSQUASHFS();
+ 		}
+-		forced_time = (time_t)epoch;
++		forced_time = content_clamp_time = (time_t)epoch;
+ 	}
+ 
+ 	/*
+-- 
+2.20.1 (Apple Git-117)
+
