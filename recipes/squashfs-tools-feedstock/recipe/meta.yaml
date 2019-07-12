@@ -1,32 +1,44 @@
+{% set variant = os.environ.get('VARIANT', 'linux') %}
+{% if variant != '' %}
+  {% set variant = "_" ~ variant %}
+{% endif %}
+
 package:
-  name: squashfs-tools
+  name: squashfs-tools{{ variant }}
   # We are coming up to a new release (epoch 3? need to be careful), so this is all very WIP.
   version: 1!4.3.12
 
 source:
   # url: http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3.orig.tar.gz
-  git_url: https://github.com/plougher/squashfs-tools
-  # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
-  # source of patches both for security (see the first one) and also for features and fixes
-  # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
-  # The original patches, against Debian's 1:4.3.12 version are in the debian folder.
-  # I have disabled them for now as the rebase is still very much WIP.
-  # They came from:
-  #  http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3-12.debian.tar.xz
-  patches:
-  #   - 0001-CVE-2015-4645-and-CVE-2015-4646.patch
-  #   - 0002-unsquashfs-add-support-for-LZMA-magics.patch
-  #   - 0003-add-fstime-to-unsquashfs-to-extract-the-fs-superbloc.patch
-  #   - 0004-unsquashfs-Preserve-times-on-symlink-inodes.patch
-  #   - 0005-If-SOURCE_DATE_EPOCH-is-set-use-that-timestamp-for-t.patch
-  #   - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
-  #   - 0007-numeric-uid-gid_to_unsquashfs.patch
-  #   - 0008-remove-frag_deflator_thread.patch
-    - 0009-Avoid-sys-sys-info-macros-.h-on-__APPLE__.patch
-    - 0010-Add-implementation-of-get_physical_memory-for-macOS.patch
-    - 0011-Add-sigtimedwait-impl-for-macOS-license-unknown.patch
-    - 0012-Add-sigwaitinfo-impl-for-macOS.patch
-    - 0013-Add-macosx.h-from-https-github.com-pieceofsummer-squ.patch
+  {% if variant == '_linux' %}
+  - git_url: https://github.com/plougher/squashfs-tools
+    patches:
+      # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
+      # source of patches both for security (see the first one) and also for features and fixes
+      # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
+      # The original patches, against Debian's 1:4.3.12 version are in the debian folder.
+      # I have disabled them for now as the rebase is still very much WIP.
+      # They came from:
+      #  http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3-12.debian.tar.xz
+      - 0001-CVE-2015-4645-and-CVE-2015-4646.patch
+      # - 0002-unsquashfs-add-support-for-LZMA-magics.patch
+      # - 0003-add-fstime-to-unsquashfs-to-extract-the-fs-superbloc.patch
+      # - 0004-unsquashfs-Preserve-times-on-symlink-inodes.patch
+      # - 0005-If-SOURCE_DATE_EPOCH-is-set-use-that-timestamp-for-t.patch
+      # - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
+      # - 0007-numeric-uid-gid_to_unsquashfs.patch
+      # - 0008-remove-frag_deflator_thread.patch
+  {% else %}
+  - git_url: https://github.com/pieceofsummer/squashfs-tools
+    patches:
+      - 0009-Avoid-sys-sys-info-macros-.h-on-__APPLE__.patch
+      - 0010-Add-implementation-of-get_physical_memory-for-macOS.patch
+      - 0011-Add-sigtimedwait-impl-for-macOS-license-unknown.patch
+      - 0012-Add-sigwaitinfo-impl-for-macOS.patch
+      - 0013-Add-macosx.h-from-https-github.com-pieceofsummer-squ.patch
+  {% endif %}
+  - url: https://github.com/plougher/squashfs-tools/blob/master/COPYING
+
 
 build:
   number: 0
@@ -44,10 +56,28 @@ requirements:
     - zstd
 
 test:
+  files:
+    - random_binaries/
   commands:
-    # --help fails, grep for the (gold) zstandard
+    # --help fails
+    - unsquashfs --help || true
+    - mksquashfs --help || true
+    # grep for the (gold) zstandard
     - unsquashfs --help 2>&1 | grep zstd
     - mksquashfs --help 2>&1 | grep zstd
+    - mksquashfs random_binaries/* squashed_fs.img
+    - unsquashfs -d random_binaries2 squashed_fs.img
+    - find random_binaries2
+    - diff -urN random_binaries random_binaries2
+    - echo $?
+
+#    - unsquashfs /opt/sw/OSes/SquashFSes/SYSTEM.LibreELEC-RPi4.arm-9.1.001
+#    # Test reproducibility
+#    - rm squashfs-root/usr/cache/shadow
+#    - mksquashfs squashfs-root SYSTEM.LibreELEC-RPi4.arm-9.1.001.1
+#    - mksquashfs squashfs-root SYSTEM.LibreELEC-RPi4.arm-9.1.001.2
+#    - shasum -a 256 SYSTEM.LibreELEC-RPi4.arm-9.1.001.1
+#    - shasum -a 256 SYSTEM.LibreELEC-RPi4.arm-9.1.001.2
 
 about:
   # Maybe:
