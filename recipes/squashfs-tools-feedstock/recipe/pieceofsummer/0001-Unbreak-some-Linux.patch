@@ -1,0 +1,34 @@
+From 595c100a7d3681b9ade2d01e04641a1bacd2f6b4 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Fri, 12 Jul 2019 15:22:42 +0000
+Subject: [PATCH] Unbreak some Linux
+
+---
+ squashfs-tools/macosx.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
+index d6038b6..96195cd 100644
+--- a/squashfs-tools/macosx.h
++++ b/squashfs-tools/macosx.h
+@@ -1,6 +1,8 @@
+ #ifndef SQUASHFS_MACOSX
+ #define SQUASHFS_MACOSX 1
+ 
++#if defined __MACH__
++
+ // MAC OS X specific defines
+ 
+ #ifndef FNM_EXTMATCH
+@@ -20,4 +22,6 @@
+ #define lgetxattr(path, name, value, size)   getxattr((path), (name), (value), (size), 0, XATTR_NOFOLLOW)
+ #define lsetxattr(path, name, value, size, flags)   setxattr((path), (name), (value), (size), 0, (flags) | XATTR_NOFOLLOW)
+ 
+-#endif
+\ No newline at end of file
++#endif
++
++#endif
+-- 
+2.20.1
+

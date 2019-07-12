@@ -11,6 +11,7 @@ package:
 source:
   # url: http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3.orig.tar.gz
   {% if variant == '_linux' %}
+  {% set best_comp = 'zstd' %}
   - git_url: https://github.com/plougher/squashfs-tools
     patches:
       # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
@@ -28,16 +29,21 @@ source:
       # - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
       # - 0007-numeric-uid-gid_to_unsquashfs.patch
       # - 0008-remove-frag_deflator_thread.patch
-  {% else %}
-  - git_url: https://github.com/pieceofsummer/squashfs-tools
-    patches:
+  {% if target_platform == 'osx-64' %}
       - 0009-Avoid-sys-sys-info-macros-.h-on-__APPLE__.patch
       - 0010-Add-implementation-of-get_physical_memory-for-macOS.patch
       - 0011-Add-sigtimedwait-impl-for-macOS-license-unknown.patch
       - 0012-Add-sigwaitinfo-impl-for-macOS.patch
       - 0013-Add-macosx.h-from-https-github.com-pieceofsummer-squ.patch
   {% endif %}
-  - url: https://github.com/plougher/squashfs-tools/blob/master/COPYING
+  {% else %}
+  {% set best_comp = 'xz' %}
+  - git_url: https://github.com/pieceofsummer/squashfs-tools
+    patches:
+      - pieceofsummer/0001-Unbreak-some-Linux.patch
+  {% endif %}
+  - url: https://raw.githubusercontent.com/plougher/squashfs-tools/master/COPYING
+    sha256: 8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643
 
 
 build:
@@ -63,8 +69,8 @@ test:
     - unsquashfs --help || true
     - mksquashfs --help || true
     # grep for the (gold) zstandard
-    - unsquashfs --help 2>&1 | grep zstd
-    - mksquashfs --help 2>&1 | grep zstd
+    - unsquashfs --help 2>&1 | grep {{ best_comp }}
+    - mksquashfs --help 2>&1 | grep {{ best_comp }}
     - mksquashfs random_binaries/* squashed_fs.img
     - unsquashfs -d random_binaries2 squashed_fs.img
     - find random_binaries2
