@@ -16,3 +16,4 @@ pushd squashfs-tools
       ZSTD_SUPPORT=1
   cp {mk,un}squashfs ${PREFIX}/bin/
 popd
+exit 1

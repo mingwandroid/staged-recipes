@@ -1,0 +1,90 @@
+From bd86dc2568e69da5f045f1bdcb725b2b89b78042 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Sat, 13 Jul 2019 01:30:48 +0200
+Subject: [PATCH] macOS fixes
+
+---
+ squashfs-tools/macosx.h           | 23 +++++++++++++++++++++++
+ squashfs-tools/unsquashfs.c       |  2 ++
+ squashfs-tools/unsquashfs_xattr.c |  1 +
+ squashfs-tools/xattr.c            |  2 ++
+ 4 files changed, 28 insertions(+)
+ create mode 100644 squashfs-tools/macosx.h
+
+diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
+new file mode 100644
+index 0000000..d6038b6
+--- /dev/null
++++ b/squashfs-tools/macosx.h
+@@ -0,0 +1,23 @@
++#ifndef SQUASHFS_MACOSX
++#define SQUASHFS_MACOSX 1
++
++// MAC OS X specific defines
++
++#ifndef FNM_EXTMATCH
++#define FNM_EXTMATCH   0
++#endif
++
++#define strdupa(s)   strdup(s)
++
++// do not track info (because of sigtimedwait/sigwaitinfo)
++#define SQUASHFS_DISABLE_INFO  1
++#define disable_info()
++#define update_info(arg)
++#define init_info()
++
++// extended attribute manipulation
++#define llistxattr(path, buf, size)   listxattr((path), (buf), (size), XATTR_NOFOLLOW)
++#define lgetxattr(path, name, value, size)   getxattr((path), (name), (value), (size), 0, XATTR_NOFOLLOW)
++#define lsetxattr(path, name, value, size, flags)   setxattr((path), (name), (value), (size), 0, (flags) | XATTR_NOFOLLOW)
++
++#endif
+\ No newline at end of file
+diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
+index 4d1ea38..5b7f719 100644
+--- a/squashfs-tools/unsquashfs.c
++++ b/squashfs-tools/unsquashfs.c
+@@ -1123,12 +1123,14 @@ int create_inode(char *pathname, struct inode *i)
+ 			break;
+ 		}
+ 
++#if !defined(__APPLE__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101300)
+ 		if (utimensat(AT_FDCWD, pathname, times,
+ 				AT_SYMLINK_NOFOLLOW) == -1) {
+ 			ERROR("create_inode: failed to set time on "
+ 			      "%s, because %s\n", pathname,
+ 			      strerror(errno));
+ 		}
++#endif
+ 
+ 		write_xattr(pathname, i->xattr);
+ 
+diff --git a/squashfs-tools/unsquashfs_xattr.c b/squashfs-tools/unsquashfs_xattr.c
+index 05c68fb..8ba1b95 100644
+--- a/squashfs-tools/unsquashfs_xattr.c
++++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -24,6 +24,7 @@
+ 
+ #include "unsquashfs.h"
+ #include "xattr.h"
++#include "macosx.h"
+ 
+ #include <sys/xattr.h>
+ 
+diff --git a/squashfs-tools/xattr.c b/squashfs-tools/xattr.c
+index 60d5c11..ceb6ee6 100644
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -43,6 +43,8 @@
+ #include "error.h"
+ #include "progressbar.h"
+ 
++#include "macosx.h"
++
+ /* compressed xattr table */
+ static char *xattr_table = NULL;
+ static unsigned int xattr_size = 0;
+-- 
+2.20.1
+
