@@ -1,23 +1,23 @@
-From e0ffed5f6fbbf19f5217e80a165a272488ec1e72 Mon Sep 17 00:00:00 2001
+From 005609bc230822e7cb1d727b972ea8681ff0eaab Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Sat, 13 Jul 2019 01:30:48 +0200
 Subject: [PATCH 1/2] macOS fixes
 
 ---
- squashfs-tools/macosx.h           | 25 +++++++++++++++++++++++++
+ squashfs-tools/macosx.h           | 21 +++++++++++++++++++++
  squashfs-tools/mksquashfs.c       |  7 +++++++
  squashfs-tools/unsquashfs.c       |  4 ++++
  squashfs-tools/unsquashfs_xattr.c |  1 +
  squashfs-tools/xattr.c            |  2 ++
- 5 files changed, 39 insertions(+)
+ 5 files changed, 35 insertions(+)
  create mode 100644 squashfs-tools/macosx.h
 
 diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
 new file mode 100644
-index 0000000..d8e8ae2
+index 0000000..991fee8
 --- /dev/null
 +++ b/squashfs-tools/macosx.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,21 @@
 +#ifndef SQUASHFS_MACOSX
 +#define SQUASHFS_MACOSX 1
 +
@@ -30,10 +30,6 @@ index 0000000..d8e8ae2
 +#endif
 +
 +#define strdupa(s)   strdup(s)
-+
-+#define disable_info()
-+#define update_info(arg)
-+#define init_info()
 +
 +// extended attribute manipulation
 +#define llistxattr(path, buf, size)   listxattr((path), (buf), (size), XATTR_NOFOLLOW)

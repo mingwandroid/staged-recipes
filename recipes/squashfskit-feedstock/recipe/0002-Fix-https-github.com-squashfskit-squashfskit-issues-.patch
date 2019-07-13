@@ -1,4 +1,4 @@
-From eef5ab1a26129385b7971f41f2ab686d359798b6 Mon Sep 17 00:00:00 2001
+From dd6370e914a996457a55fd568725645b249d60af Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Sat, 13 Jul 2019 09:45:04 +0200
 Subject: [PATCH 2/2] Fix https://github.com/squashfskit/squashfskit/issues/4
