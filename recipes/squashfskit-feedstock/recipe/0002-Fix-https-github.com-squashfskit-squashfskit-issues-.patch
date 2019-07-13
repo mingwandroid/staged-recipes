@@ -1,4 +1,4 @@
-From df6b0699231cfc0949b50782e91e4bd934dc300e Mon Sep 17 00:00:00 2001
+From eef5ab1a26129385b7971f41f2ab686d359798b6 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Sat, 13 Jul 2019 09:45:04 +0200
 Subject: [PATCH 2/2] Fix https://github.com/squashfskit/squashfskit/issues/4
@@ -22,10 +22,10 @@ index 2e208e8..341d87b 100644
  	printf("\nhttps://github.com/squashfskit/squashfskit/\n\n");\
  	printf("This program is free software; you can redistribute it and/or"\
 diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
-index 2afc28a..b434ab1 100644
+index a4a3bb5..814772b 100644
 --- a/squashfs-tools/unsquashfs.c
 +++ b/squashfs-tools/unsquashfs.c
-@@ -2544,6 +2544,8 @@ int parse_number(char *arg, int *res)
+@@ -2543,6 +2543,8 @@ int parse_number(char *arg, int *res)
  
  #define VERSION() \
  	printf("unsquashfs version %s (%s)\n", VERSION_STR, VERSION_DATE_STR);\

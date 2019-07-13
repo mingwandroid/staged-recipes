@@ -1,45 +1,18 @@
 {% set name = "squashfskit" %}
 {% set version = "4.14" %}
-{% set variant = os.environ.get('VARIANT', 'linux') %}
-{% if variant != '' %}
-  {% set variant = "_" ~ variant %}
-{% endif %}
 
 package:
-  name: {{ name }}{{ variant }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  # url: http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3.orig.tar.gz
-  {% if variant == '_linux' %}
-  {% set best_comp = 'zstd' %}
   #- url: https://github.com/squashfskit/squashfskit/archive/v{{ version }}.tar.gz
   #  fn: {{ name }}-v{{ version }}.tar.gz
   #  sha256: 10ad288a4743a22ec69bd04bb5633b29072e4646c0062fd484e82ef247669dc7
   - git_url: https://github.com/squashfskit/squashfskit
     patches:
       - 0001-macOS-fixes.patch
-      # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
-      # source of patches both for security (see the first one) and also for features and fixes
-      # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
-      # The original patches, against Debian's 1:4.3.12 version are in the debian folder.
-      # I have disabled them for now as the rebase is still very much WIP.
-      # They came from:
-      #  http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3-12.debian.tar.xz
-      # - 0001-CVE-2015-4645-and-CVE-2015-4646.patch
-      # - 0002-unsquashfs-add-support-for-LZMA-magics.patch
-      # - 0003-add-fstime-to-unsquashfs-to-extract-the-fs-superbloc.patch
-      # - 0004-unsquashfs-Preserve-times-on-symlink-inodes.patch
-      # - 0005-If-SOURCE_DATE_EPOCH-is-set-use-that-timestamp-for-t.patch
-      # - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
-      # - 0007-numeric-uid-gid_to_unsquashfs.patch
-      # - 0008-remove-frag_deflator_thread.patch
-  {% else %}
-  {% set best_comp = 'xz' %}
-  - git_url: https://github.com/pieceofsummer/squashfs-tools
-    patches:
-      - pieceofsummer/0001-Unbreak-some-Linux.patch
-  {% endif %}
+      - 0002-Fix-https-github.com-squashfskit-squashfskit-issues-.patch
   - url: https://raw.githubusercontent.com/plougher/squashfs-tools/master/COPYING
     sha256: 8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643
 
@@ -67,8 +40,8 @@ test:
     - unsquashfs --help || true
     - mksquashfs --help || true
     # grep for the (gold) zstandard
-    - unsquashfs --help 2>&1 | grep {{ best_comp }}
-    - mksquashfs --help 2>&1 | grep {{ best_comp }}
+    - unsquashfs --help 2>&1 | grep zstd
+    - mksquashfs --help 2>&1 | grep zstd
     - mksquashfs random_binaries/* squashed_fs.img
     - unsquashfs -d random_binaries2 squashed_fs.img
     - find random_binaries2

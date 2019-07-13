@@ -1,27 +1,29 @@
-From 1826a94d6479412edd0828f1bddc22372020312e Mon Sep 17 00:00:00 2001
+From e0ffed5f6fbbf19f5217e80a165a272488ec1e72 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Sat, 13 Jul 2019 01:30:48 +0200
-Subject: [PATCH] macOS fixes
+Subject: [PATCH 1/2] macOS fixes
 
 ---
- squashfs-tools/macosx.h           | 23 +++++++++++++++++++++++
+ squashfs-tools/macosx.h           | 25 +++++++++++++++++++++++++
  squashfs-tools/mksquashfs.c       |  7 +++++++
- squashfs-tools/unsquashfs.c       |  5 +++++
+ squashfs-tools/unsquashfs.c       |  4 ++++
  squashfs-tools/unsquashfs_xattr.c |  1 +
  squashfs-tools/xattr.c            |  2 ++
- 5 files changed, 38 insertions(+)
+ 5 files changed, 39 insertions(+)
  create mode 100644 squashfs-tools/macosx.h
 
 diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
 new file mode 100644
-index 0000000..d6038b6
+index 0000000..d8e8ae2
 --- /dev/null
 +++ b/squashfs-tools/macosx.h
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +#ifndef SQUASHFS_MACOSX
 +#define SQUASHFS_MACOSX 1
 +
-+// MAC OS X specific defines
++#if defined(__MACH__)
++
++/* MAC OS X specific defines */
 +
 +#ifndef FNM_EXTMATCH
 +#define FNM_EXTMATCH   0
@@ -29,8 +31,6 @@ index 0000000..d6038b6
 +
 +#define strdupa(s)   strdup(s)
 +
-+// do not track info (because of sigtimedwait/sigwaitinfo)
-+#define SQUASHFS_DISABLE_INFO  1
 +#define disable_info()
 +#define update_info(arg)
 +#define init_info()
@@ -40,8 +40,9 @@ index 0000000..d6038b6
 +#define lgetxattr(path, name, value, size)   getxattr((path), (name), (value), (size), 0, XATTR_NOFOLLOW)
 +#define lsetxattr(path, name, value, size, flags)   setxattr((path), (name), (value), (size), 0, (flags) | XATTR_NOFOLLOW)
 +
++#endif /* defined(__MACH__) */
++
 +#endif
-\ No newline at end of file
 diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
 index f1d5f42..2e208e8 100644
 --- a/squashfs-tools/mksquashfs.c
@@ -62,7 +63,7 @@ index f1d5f42..2e208e8 100644
  	int phys_mem = num_pages * page_size >> 20;
  
 diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
-index 4d1ea38..2afc28a 100644
+index 4d1ea38..a4a3bb5 100644
 --- a/squashfs-tools/unsquashfs.c
 +++ b/squashfs-tools/unsquashfs.c
 @@ -1104,10 +1104,12 @@ int create_inode(char *pathname, struct inode *i)
@@ -78,12 +79,11 @@ index 4d1ea38..2afc28a 100644
  
  		TRACE("create_inode: symlink, symlink_size %lld\n",
  		      i->data);
-@@ -1123,12 +1125,15 @@ int create_inode(char *pathname, struct inode *i)
+@@ -1123,12 +1125,14 @@ int create_inode(char *pathname, struct inode *i)
  			break;
  		}
  
 +#if !defined(__APPLE__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101300)
-+#error good
  		if (utimensat(AT_FDCWD, pathname, times,
  				AT_SYMLINK_NOFOLLOW) == -1) {
  			ERROR("create_inode: failed to set time on "
