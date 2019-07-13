@@ -33,6 +33,9 @@ requirements:
     - zstd
 
 test:
+  requires:
+    # Just to check that reproducibility works.
+    - openssl
   files:
     - random_binaries/
   commands:
@@ -42,18 +45,16 @@ test:
     # grep for the (gold) zstandard
     - unsquashfs --help 2>&1 | grep zstd
     - mksquashfs --help 2>&1 | grep zstd
-    - mksquashfs random_binaries/* squashed_fs.img
-    - unsquashfs -d random_binaries2 squashed_fs.img
+    - mksquashfs random_binaries/* squashed_fs.1.img
+    - mksquashfs random_binaries/* squashed_fs.2.img
+    - 'SHA1=$(openssl sha1 squashed_fs.1.img | cut -d" " -f 2)'
+    - 'SHA2=$(openssl sha1 squashed_fs.2.img | cut -d" " -f 2)'
+    - 'echo SHA1: ${SHA1}'
+    - 'echo SHA2: ${SHA2}'
+    - '[[ ${SHA1} == ${SHA2} ]] || exit 1'
+    - unsquashfs -d random_binaries2 squashed_fs.1.img
     - find random_binaries2
     - diff -urN random_binaries random_binaries2
-
-#    - unsquashfs /opt/sw/OSes/SquashFSes/SYSTEM.LibreELEC-RPi4.arm-9.1.001
-#    # Test reproducibility
-#    - rm squashfs-root/usr/cache/shadow
-#    - mksquashfs squashfs-root SYSTEM.LibreELEC-RPi4.arm-9.1.001.1
-#    - mksquashfs squashfs-root SYSTEM.LibreELEC-RPi4.arm-9.1.001.2
-#    - shasum -a 256 SYSTEM.LibreELEC-RPi4.arm-9.1.001.1
-#    - shasum -a 256 SYSTEM.LibreELEC-RPi4.arm-9.1.001.2
 
 about:
   # Maybe:
