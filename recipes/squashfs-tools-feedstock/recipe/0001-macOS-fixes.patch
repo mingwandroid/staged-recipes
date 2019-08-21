@@ -1,17 +1,31 @@
-From c42b4e5a86a4fee47672d7c338709e854ae02a7d Mon Sep 17 00:00:00 2001
+From fc723620d1fa98d22e9301a84607ca724171aeb7 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Sat, 13 Jul 2019 01:30:48 +0200
-Subject: [PATCH] macOS fixes
+Subject: [PATCH 1/2] macOS fixes
 
 ---
+ squashfs-tools/action.c           |  2 ++
  squashfs-tools/macosx.h           | 23 +++++++++++++++++++++++
- squashfs-tools/mksquashfs.c       |  7 +++++++
- squashfs-tools/unsquashfs.c       |  4 ++++
+ squashfs-tools/mksquashfs.c       | 16 +++++++++++++---
+ squashfs-tools/unsquashfs.c       | 13 +++++++++++++
  squashfs-tools/unsquashfs_xattr.c |  1 +
  squashfs-tools/xattr.c            |  2 ++
- 5 files changed, 37 insertions(+)
+ 6 files changed, 54 insertions(+), 3 deletions(-)
  create mode 100644 squashfs-tools/macosx.h
 
+diff --git a/squashfs-tools/action.c b/squashfs-tools/action.c
+index 4b06ccb..87bcc2b 100644
+--- a/squashfs-tools/action.c
++++ b/squashfs-tools/action.c
+@@ -44,6 +44,8 @@
+ #include "error.h"
+ #include "fnmatch_compat.h"
+ 
++#include "macosx.h"
++
+ /*
+  * code to parse actions
+  */
 diff --git a/squashfs-tools/macosx.h b/squashfs-tools/macosx.h
 new file mode 100644
 index 0000000..d6038b6
@@ -43,10 +57,37 @@ index 0000000..d6038b6
 +#endif
 \ No newline at end of file
 diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
-index 69d324e..24cabdd 100644
+index 69d324e..d01a40c 100644
 --- a/squashfs-tools/mksquashfs.c
 +++ b/squashfs-tools/mksquashfs.c
-@@ -5191,7 +5191,14 @@ int get_physical_memory()
+@@ -35,7 +35,6 @@
+ #include <stddef.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+-#include <sys/sysmacros.h>
+ #include <fcntl.h>
+ #include <errno.h>
+ #include <dirent.h>
+@@ -50,9 +49,8 @@
+ #include <sys/wait.h>
+ #include <limits.h>
+ #include <ctype.h>
+-#include <sys/sysinfo.h>
+ 
+-#ifndef linux
++#if defined(__APPLE__) || !defined(__GLIBC__)
+ #define __BYTE_ORDER BYTE_ORDER
+ #define __BIG_ENDIAN BIG_ENDIAN
+ #define __LITTLE_ENDIAN LITTLE_ENDIAN
+@@ -60,6 +58,7 @@
+ #else
+ #include <endian.h>
+ #include <sys/sysinfo.h>
++#include <sys/sysmacros.h>
+ #endif
+ 
+ #include "squashfs_fs.h"
+@@ -5191,11 +5190,19 @@ int get_physical_memory()
  	 * sysconf(_SC_PHYS_PAGES) relies on /proc being mounted.
  	 * If it fails use sysinfo, if that fails return 0
  	 */
@@ -61,11 +102,44 @@ index 69d324e..24cabdd 100644
  	long long page_size = sysconf(_SC_PAGESIZE);
  	int phys_mem;
  
+ 	if(num_pages == -1 || page_size == -1) {
++#if !defined(__APPLE__)
+ 		struct sysinfo sys;
+ 		int res = sysinfo(&sys);
+ 
+@@ -5204,6 +5211,9 @@ int get_physical_memory()
+ 
+ 		num_pages = sys.totalram;
+ 		page_size = sys.mem_unit;
++#else
++		return 0;
++#endif
+ 	}
+ 
+ 	phys_mem = num_pages * page_size >> 20;
 diff --git a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
-index 68e6742..7a1b791 100644
+index 68e6742..37aa75c 100644
 --- a/squashfs-tools/unsquashfs.c
 +++ b/squashfs-tools/unsquashfs.c
-@@ -1079,10 +1079,12 @@ int create_inode(char *pathname, struct inode *i)
+@@ -32,8 +32,17 @@
+ #include "stdarg.h"
+ #include "fnmatch_compat.h"
+ 
++#if defined(__APPLE__) || !defined(__GLIBC__)
++#define __BYTE_ORDER BYTE_ORDER
++#define __BIG_ENDIAN BIG_ENDIAN
++#define __LITTLE_ENDIAN LITTLE_ENDIAN
++#include <sys/sysctl.h>
++#else
++#include <endian.h>
+ #include <sys/sysinfo.h>
+ #include <sys/sysmacros.h>
++#endif
++
+ #include <sys/types.h>
+ #include <sys/time.h>
+ #include <sys/resource.h>
+@@ -1079,10 +1088,12 @@ int create_inode(char *pathname, struct inode *i)
  			break;
  		case SQUASHFS_SYMLINK_TYPE:
  		case SQUASHFS_LSYMLINK_TYPE: {
@@ -78,15 +152,15 @@ index 68e6742..7a1b791 100644
  
  			TRACE("create_inode: symlink, symlink_size %lld\n",
  				i->data);
-@@ -1098,6 +1100,7 @@ int create_inode(char *pathname, struct inode *i)
+@@ -1098,6 +1109,7 @@ int create_inode(char *pathname, struct inode *i)
  				goto failed;
  			}
  
-+if !defined(__APPLE__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101300)
++#if !defined(__APPLE__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 101300)
  			res = utimensat(AT_FDCWD, pathname, times,
  					AT_SYMLINK_NOFOLLOW);
  			if(res == -1) {
-@@ -1105,6 +1108,7 @@ int create_inode(char *pathname, struct inode *i)
+@@ -1105,6 +1117,7 @@ int create_inode(char *pathname, struct inode *i)
  					"%s, because %s\n", pathname,
  					strerror(errno));
  			}
