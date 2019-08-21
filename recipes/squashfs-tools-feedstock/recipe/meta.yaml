@@ -1,24 +1,19 @@
-{% set name = "squashfskit" %}
-{% set version = "4.14" %}
-{% set variant = os.environ.get('VARIANT', 'linux') %}
-{% if variant != '' %}
-  {% set variant = "_" ~ variant %}
-{% endif %}
+{% set name = "squashfs-tools" %}
+{% set version = "4.4" %}
+{% set best_comp = 'zstd' %}
 
 package:
-  name: {{ name }}{{ variant }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  # url: http://deb.debian.org/debian/pool/main/s/squashfs-tools/squashfs-tools_4.3.orig.tar.gz
-  {% if variant == '_linux' %}
-  {% set best_comp = 'zstd' %}
-  #- url: https://github.com/squashfskit/squashfskit/archive/v{{ version }}.tar.gz
-  #  fn: {{ name }}-v{{ version }}.tar.gz
-  #  sha256: 10ad288a4743a22ec69bd04bb5633b29072e4646c0062fd484e82ef247669dc7
-  - git_url: https://github.com/squashfskit/squashfskit
+  - git_url: https://github.com/plougher/squashfs-tools
+    git_ref: 00508d9bf2cc2c8d026483d817db212602ab6295
+  #- url: https://github.com/plougher/squashfs-tools/archive/{{ version }}.tar.gz
+  #  fn: {{ name }}-{{ version }}.tar.gz
+  #  sha256: 0d605512437b1eb800b4736791559295ee5f60177e102e4d4ccd0ee241a5f3f6
     patches:
-      - 0001-macOS-fixes.patch
+      # - 0001-macOS-fixes.patch
       # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
       # source of patches both for security (see the first one) and also for features and fixes
       # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
@@ -34,12 +29,6 @@ source:
       # - 0006-If-SOURCE_DATE_EPOCH-is-set-also-clamp-content-times.patch
       # - 0007-numeric-uid-gid_to_unsquashfs.patch
       # - 0008-remove-frag_deflator_thread.patch
-  {% else %}
-  {% set best_comp = 'xz' %}
-  - git_url: https://github.com/pieceofsummer/squashfs-tools
-    patches:
-      - pieceofsummer/0001-Unbreak-some-Linux.patch
-  {% endif %}
   - url: https://raw.githubusercontent.com/plougher/squashfs-tools/master/COPYING
     sha256: 8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643
 
