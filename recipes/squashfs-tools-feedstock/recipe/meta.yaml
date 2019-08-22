@@ -14,7 +14,6 @@ source:
   #  sha256: 0d605512437b1eb800b4736791559295ee5f60177e102e4d4ccd0ee241a5f3f6
     patches:
       - 0001-macOS-fixes.patch
-      - 0002-macOS-fixes-two.patch
       # I (Ray Donnelly) rebased these from Debian, under the thinking that they will be a good
       # source of patches both for security (see the first one) and also for features and fixes
       # and more importantly, Raspberry Pie ROM hacking (since these are used for Raspbian).
