@@ -1,0 +1,34 @@
+From 84d2638586c907f24e79a5a6ab9cbcf091ac0935 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Fri, 8 Nov 2019 10:09:20 +0100
+Subject: [PATCH 3/4] Fix exception syntax for Python 3
+
+---
+ GoSync/GoSyncModel.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/GoSync/GoSyncModel.py b/GoSync/GoSyncModel.py
+index 550e62d..4a8fa21 100644
+--- a/GoSync/GoSyncModel.py
++++ b/GoSync/GoSyncModel.py
+@@ -421,7 +421,7 @@ class GoSyncModel(object):
+             updated_file = self.authToken.service.files().patch(fileId=file_object['id'],
+                                                                 body=file, fields='title').execute()
+             return updated_file
+-        except errors.HttpError, error:
++        except (errors.HttpError, error):
+             self.logger.error('An error occurred while renaming file: %s' % error)
+             return None
+         except:
+@@ -447,7 +447,7 @@ class GoSyncModel(object):
+         try:
+             self.authToken.service.files().trash(fileId=file_object['id']).execute()
+             self.logger.info({"TRASH_FILE: File %s deleted successfully.\n" % file_object['title']})
+-        except errors.HttpError, error:
++        except (errors.HttpError, error):
+             self.logger.error("TRASH_FILE: HTTP Error\n")
+             raise RegularFileTrashFailed()
+ 
+-- 
+2.23.0
+

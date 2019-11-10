@@ -1,0 +1,56 @@
+{% set name = "gosync" %}
+{% set version = "0.4" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # url: https://github.com/hschauhan/{{ name }}/archive/v{{ version }}.tar.gz
+  # sha256: 7b1a071fb1f152b638e21822f7276300cf77e5ee71283a63837cf127025f3d2a
+  git_url: https://github.com/hschauhan/{{ name }}.git
+  git_ref: v{{ version }}
+  patches:
+    - 0001-Fix-os.mkdir-mode-parameters-to-be-legal-octol.patch
+    - 0002-From-future-import-print_function.patch
+    - 0003-Fix-exception-syntax-for-Python-3.patch
+    - 0004-Convert-tabs-to-spaces.patch
+
+build:
+  # noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - python
+    - wxpython
+    - pip
+    - google-api-python-client
+    - pydrive
+    - watchdog
+  run:
+    - python
+    - wxpython
+    - google-api-python-client
+    - pydrive
+    - watchdog
+
+about:
+  home: https://github.com/hschauhan/gosync
+  license: GPL-2.0
+  license_file: LICENSE
+  summary: 'open source Google Drive client for Linux written in python language'
+  description: |
+    It syncs everything from the drive. By default, the sync is turned on.
+    You can pause it by clicking "Pause/Resume Sync" menu item. GoSync also
+    monitors for the file changes in the local mirror directory. When a new
+    file is created in local mirror, it is immediately uploaded to the
+    Google Drive.
+  dev_url: https://github.com/hschauhan/gosync
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
