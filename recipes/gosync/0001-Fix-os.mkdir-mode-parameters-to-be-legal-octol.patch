@@ -1,0 +1,39 @@
+From 7e8e09d11102cdd487e8346a31b831690ed2145f Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Fri, 8 Nov 2019 09:12:18 +0100
+Subject: [PATCH 1/4] Fix os.mkdir mode parameters to be legal octol
+
+---
+ GoSync/GoSyncModel.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/GoSync/GoSyncModel.py b/GoSync/GoSyncModel.py
+index ffaf741..ee4806f 100644
+--- a/GoSync/GoSyncModel.py
++++ b/GoSync/GoSyncModel.py
+@@ -92,11 +92,11 @@ class GoSyncModel(object):
+         self.config=None
+ 
+         if not os.path.exists(self.config_path):
+-            os.mkdir(self.config_path, 0755)
++            os.mkdir(self.config_path, 0o755)
+             raise ClientSecretsNotFound()
+ 
+         if not os.path.exists(self.base_mirror_directory):
+-            os.mkdir(self.base_mirror_directory, 0755)
++            os.mkdir(self.base_mirror_directory, 0o755)
+ 
+         if not os.path.exists(self.client_secret_file):
+             raise ClientSecretsNotFound()
+@@ -120,7 +120,7 @@ class GoSyncModel(object):
+ 
+         self.mirror_directory = os.path.join(self.base_mirror_directory, self.user_email)
+         if not os.path.exists(self.mirror_directory):
+-            os.mkdir(self.mirror_directory, 0755)
++            os.mkdir(self.mirror_directory, 0o755)
+ 
+         self.tree_pickle_file = os.path.join(self.config_path, 'gtree-' + self.user_email + '.pick')
+ 
+-- 
+2.23.0
+

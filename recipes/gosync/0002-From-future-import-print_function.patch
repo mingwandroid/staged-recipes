@@ -1,0 +1,55 @@
+From bb0b52b258cc9c55f52f714cd238ad71ba114431 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Fri, 8 Nov 2019 09:18:50 +0100
+Subject: [PATCH 2/4] From future import print_function
+
+---
+ GoSync/DriveUsageBox.py | 3 ++-
+ GoSync/GoSyncModel.py   | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/GoSync/DriveUsageBox.py b/GoSync/DriveUsageBox.py
+index d9fb58b..51d6a5b 100644
+--- a/GoSync/DriveUsageBox.py
++++ b/GoSync/DriveUsageBox.py
+@@ -16,6 +16,7 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ 
++#from future import print_function
+ import wx, math
+ 
+ class DriveUsageBox(wx.Panel):
+@@ -179,7 +180,7 @@ class DriveUsageBox(wx.Panel):
+             if (pwidth < 0):
+                 pwidth = 0
+ 
+-            #print "pcent: %f width: %d pwidth: %d\n" % (ctuple[1], self.barWidth, pwidth)
++            #print("pcent: %f width: %d pwidth: %d\n" % (ctuple[1], self.barWidth, pwidth))
+             ctuple[0].SetBackgroundColour(ctuple[2])
+             ctuple[0].SetSize((0,0))
+             ctuple[0].SetSize((pwidth, self.barHeight))
+diff --git a/GoSync/GoSyncModel.py b/GoSync/GoSyncModel.py
+index ee4806f..550e62d 100644
+--- a/GoSync/GoSyncModel.py
++++ b/GoSync/GoSyncModel.py
+@@ -16,6 +16,7 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ 
++from future import print_function
+ import sys, os, wx, ntpath, defines, threading, hashlib, time, copy
+ from pydrive.auth import GoogleAuth
+ from pydrive.drive import GoogleDrive
+@@ -185,7 +186,7 @@ class GoSyncModel(object):
+                 try:
+                     self.config_dict = self.config[self.user_email]
+                     self.sync_selection = self.config_dict['Sync Selection']
+-                    print self.config_dict['Drive Usage']
++                    print(self.config_dict['Drive Usage'])
+                     try:
+                         self.drive_usage_dict = self.config_dict['Drive Usage']
+                         self.totalFilesToCheck = self.drive_usage_dict['Total Files']
+-- 
+2.23.0
+
