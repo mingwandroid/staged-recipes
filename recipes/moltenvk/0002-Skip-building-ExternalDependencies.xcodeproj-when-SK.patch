@@ -1,0 +1,33 @@
+From 5c1f8a33a1beb58ff9c4ccf3ef60d355439cb9fd Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Sun, 10 Nov 2019 20:48:39 +0100
+Subject: [PATCH 2/2] Skip building ExternalDependencies.xcodeproj when
+ SKIP_XCODEBUILD
+
+---
+ fetchDependencies | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fetchDependencies b/fetchDependencies
+index 08ce79e..25e6eda 100755
+--- a/fetchDependencies
++++ b/fetchDependencies
+@@ -277,6 +277,7 @@ echo
+ echo ========== Building dependency libraries quietly. Please be patient on first build. ==========
+ echo
+ 
++if [[ -z ${SKIP_XCODEBUILD} ]]; then
+ EXT_DEPS=ExternalDependencies
+ XC_PROJ="${EXT_DEPS}.xcodeproj"
+ XC_SCHEME="${EXT_DEPS}${XC_SCHEME_SFX}"
+@@ -288,6 +289,7 @@ xcodebuild 								\
+ 	-derivedDataPath "${XC_DD_PATH}"	\
+ 	${XC_BUILD_VERBOSITY}				\
+ 	build
++fi
+ 
+ echo ========== Done! ==========
+ 
+-- 
+2.23.0
+
