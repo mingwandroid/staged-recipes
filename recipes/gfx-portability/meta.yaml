@@ -1,0 +1,47 @@
+{% set version = '0.8.1' %}
+{% set name = 'gfx-portability' %}
+{% set repo_name = 'portability' %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://github.com/gfx-rs/{{ repo_name }}/archive/{{ version }}.tar.gz
+
+build:
+  number: 0
+  script:
+    - set RUST_BACKTRACE=1  # [win]
+    - cargo build --release -v
+    - $STRIP -S target/release/*${SHLIB_EXT}  # [not win]
+    - mkdir $PREFIX/bin  # [not win]
+    - mkdir $PREFIX/lib  # [not win]
+    - mkdir %PREFIX%\bin  # [win]
+    - mkdir %PREFIX%\lib  # [win]
+    - cp -rf target/release/*${SHLIB_EXT} $PREFIX/bin  # [not win]
+    - cp target/release/libportability.a $PREFIX/lib  # [not win]
+    - ln -s target/release/libportability${SHLIB_EXT} libvulkan${SHLIB_EXT}  # [not win]
+    - copy target\release\*%SHLIB_EXT% %LIBRARY_BIN%  # [win]
+    - copy target\release\libportability%SHLIB_EXT% %LIBRARY_BIN%\libvulkan%SHLIB_EXT%  # [win]
+    - copy target\release\libportability.lib %LIBRARY_INC%  # [win]
+  missing_dso_whitelist:
+    - /usr/lib/libresolv.9.dylib
+
+requirements:
+  build:
+    - {{ compiler('rust') }}
+
+about:
+  home: https://github.com/gfx-rs/portability
+  license: MPL-2.0
+  license_family: Mozilla
+  license_file: LICENSE
+  summary: Prototype library implementing Vulkan Portability Initiative
+  doc_url: https://github.com/gfx-rs/portability
+  dev_url: https://github.com/gfx-rs/portability
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
