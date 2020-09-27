@@ -15,10 +15,9 @@ build:
   script:
     - set RUST_BACKTRACE=1  # [win]
     - cargo build --release -v
-    - $STRIP -S target/release/*${SHLIB_EXT}  # [not win]
-    - mkdir $PREFIX/bin  # [not win]
     - mkdir %PREFIX%\bin  # [win]
     - rm -rf target/release/*.d  # [not win]
+    - $STRIP -S target/release/nu*  # [not win]
     - cp -rf target/release/nu target/release/nu_* $PREFIX/bin  # [not win]
     - del /s /q target\release\*.d  # [win]
     - copy target\release\nu %LIBRARY_BIN%  # [win]
