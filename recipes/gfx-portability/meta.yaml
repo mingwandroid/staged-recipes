@@ -19,14 +19,14 @@ build:
     - $STRIP -S target/release/*${SHLIB_EXT}  # [not win]
     - mkdir $PREFIX/bin  # [not win]
     - mkdir $PREFIX/lib  # [not win]
-    - mkdir %PREFIX%\bin  # [win]
-    - mkdir %PREFIX%\lib  # [win]
+    - mkdir %LIBRARY_BIN%  # [win]
+    - mkdir %LIBRARY_LIB%  # [win]
     - cp -rf target/release/*${SHLIB_EXT} $PREFIX/bin  # [not win]
     - cp target/release/libportability.a $PREFIX/lib  # [not win]
     - ln -s target/release/libportability${SHLIB_EXT} libvulkan${SHLIB_EXT}  # [not win]
     - copy target\release\*%SHLIB_EXT% %LIBRARY_BIN%  # [win]
-    - copy target\release\libportability%SHLIB_EXT% %LIBRARY_BIN%\libvulkan%SHLIB_EXT%  # [win]
-    - copy target\release\libportability.lib %LIBRARY_INC%  # [win]
+    - copy target\release\portability%SHLIB_EXT% %LIBRARY_BIN%\vulkan-1%SHLIB_EXT%  # [win]
+    - copy target\release\libportability* %LIBRARY_LIB%\  # [win]
   missing_dso_whitelist:
     - /usr/lib/libresolv.9.dylib
 
