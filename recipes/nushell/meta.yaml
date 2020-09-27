@@ -1,0 +1,46 @@
+{% set version = '0.20.0' %}
+{% set name = 'nushell' %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://github.com/{{ name }}/{{ name }}/archive/{{ version }}.tar.gz
+  sha256: ccecbfd49d03ca45f347fe55b789b8732003ceab49a14af110390e723f2fd274
+
+build:
+  number: 0
+  script:
+    - set RUST_BACKTRACE=1  # [win]
+    - cargo build --release -v
+    - $STRIP -S target/release/*${SHLIB_EXT}  # [not win]
+    - mkdir $PREFIX/bin  # [not win]
+    - mkdir %PREFIX%\bin  # [win]
+    - rm -rf target/release/*.d  # [not win]
+    - cp -rf target/release/nu target/release/nu_* $PREFIX/bin  # [not win]
+    - del /s /q target\release\*.d  # [win]
+    - copy target\release\nu %LIBRARY_BIN%  # [win]
+    - copy target\release\nu_* %LIBRARY_BIN%  # [win]
+  missing_dso_whitelist:
+    - /usr/lib/libresolv.9.dylib
+
+requirements:
+  build:
+    - {{ compiler('rust') }}
+  host:
+    - libgit2
+
+about:
+  home: https://www.nushell.sh/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Prototype library implementing Vulkan Portability Initiative
+  doc_url: https://www.nushell.sh/documentation.html
+  dev_url: https://github.com/nushell/nushell
+
+extra:
+  recipe-maintainers:
+    - mingwandroid

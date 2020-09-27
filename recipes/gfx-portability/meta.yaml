@@ -9,6 +9,7 @@ package:
 source:
   fn: {{ name }}-{{ version }}.tar.gz
   url: https://github.com/gfx-rs/{{ repo_name }}/archive/{{ version }}.tar.gz
+  sha256: 1ca8a254c124e5396f2011d553468cfe24f0970d17fb3d7f60a09d086b189d38
 
 build:
   number: 0
