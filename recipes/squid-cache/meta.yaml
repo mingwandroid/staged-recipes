@@ -1,0 +1,55 @@
+{% set name = "squid-cache" %}
+{% set version = "5.0.4" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # git_url: https://github.com/squid-cache/squid
+  # git_tag: eaf30d4aee361cee75fc68df6e851b996df1339d
+  - url: http://www.squid-cache.org/Versions/v5/squid-5.0.4.tar.xz
+    sha256: baee99184d431f0c2b90a748acbb9aa837ea52a8fd53ae19e91bf551d56845f3
+    folder: squid-cache
+  - git_url: git://anongit.freedesktop.org/git/libreoffice/cppunit/
+    git_ref: 89c5c6665337f56fd2db36bc3805a5619709d51fb136e51937072f63fcc717a7
+    folder: cppunit
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - {{ ccache('symlinks') }}
+    - {{ compiler('cxx') }}
+    - autoconf
+    - automake =1.15
+    - libtool
+    - pkg-config
+    - make
+  host:
+    - libxml2
+
+test:
+  commands:
+    - squidclient --help  # [osx]
+    - squidd --help  # [not osx]
+
+about:
+  home: http://www.squid-cache.org/
+  license: GPL-V3
+  license_family: GPL
+  license_file: squid-cache/COPYING
+  summary: 'Simple, fast, extensible JSON encoder/decoder for Python'
+
+  # The remaining entries in this section are optional, but recommended.
+  description: |
+    MoltenVK is an implementation of the high-performance, industry-standard
+    Vulkan graphics and compute API, that runs on Apple's Metal graphics
+    framework, bringing Vulkan to iOS and macOS
+  doc_url: https://github.com/KhronosGroup/MoltenVK/blob/master/README.md
+  dev_url: https://github.com/KhronosGroup/MoltenVK
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
