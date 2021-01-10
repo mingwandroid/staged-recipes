@@ -14,7 +14,7 @@ source:
       - 0001-Allow-user-specified-flags.patch
 
 build:
-  number: 0
+  number: 1
 
 requirements:
   build:

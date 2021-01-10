@@ -1,6 +1,12 @@
 $!/usr/bin/env bash
 
 declare -a XC_TO_CM=()
+
+if [[ ! -f '${HOME}/brew/Cellar/mulle-xcode-to-cmake/0.9.0/bin/mulle-xcode-to-cmake ]]; then
+  echo "ERROR :: For now, please 'brew install mulle-kybernetik/software/mulle-xcode-to-cmake' (we should package this)"
+  exit 1
+fi
+
 XC_TO_CM+=('${HOME}/brew/Cellar/mulle-xcode-to-cmake/0.9.0/bin/mulle-xcode-to-cmake')
 XC_TO_CM+=('-2')
 XC_TO_CM+=('-d')
