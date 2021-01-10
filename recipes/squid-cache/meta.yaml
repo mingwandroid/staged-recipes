@@ -32,9 +32,9 @@ requirements:
 
 test:
   commands:
-    - test -f squidclient  # [osx]
+    - test -f ${PREFIX}/bin/squidclient  # [osx]
     - squidclient --help || true # [osx]
-    - test -f squidd  # [not osx]
+    - test -f ${PREFIX}/bin/squidd  # [not osx]
     - squidd --help  # [not osx]
 
 about:
