@@ -1,0 +1,43 @@
+{% set name = "flirc-sdk" %}
+# Version number comes from the FW version the lib supports as it is otherwise
+# unversioned.
+{% set version = "4.9" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  - git_url: https://github.com/flirc/sdk
+    git_ref: master
+    patches:
+      - 0001-Allow-user-specified-flags.patch
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - make  # [not win]
+    - m2-make  # [win]
+  host:
+    - libusb
+    - readline
+    - hidapi
+
+about:
+  home: https://github.com/flirc/sdk
+  license: Unknown
+  summary: 'open source Google Drive client for Linux written in python language'
+  description: |
+    It syncs everything from the drive. By default, the sync is turned on.
+    You can pause it by clicking "Pause/Resume Sync" menu item. GoSync also
+    monitors for the file changes in the local mirror directory. When a new
+    file is created in local mirror, it is immediately uploaded to the
+    Google Drive.
+  dev_url: https://github.com/hschauhan/gosync
+
+extra:
+  recipe-maintainers:
+    - mingwandroid

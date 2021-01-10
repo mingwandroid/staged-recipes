@@ -1,0 +1,63 @@
+From 6469b2d45770f54bb5996f5d86115481b223312a Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Sat, 9 Jan 2021 22:37:50 +0100
+Subject: [PATCH] Allow user specified flags
+
+---
+ cli/buildsystem/main.mk | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/cli/buildsystem/main.mk b/cli/buildsystem/main.mk
+index deec6c1..5d98395 100644
+--- a/cli/buildsystem/main.mk
++++ b/cli/buildsystem/main.mk
+@@ -1,24 +1,28 @@
+ include buildsystem/func.mk
+ 
+ # Set default flags
+-CPPFLAGS := -Iinclude -Isrc -I../libs/
+-CFLAGS := -Wall -Werror 
++CPPFLAGS ?= -Iinclude -Isrc -I../libs/
++CFLAGS ?= -Wall -Werror
+ 
+ ifeq ($(HOSTOS),win)
+-CC		:= i686-w64-mingw32.static-gcc
+-CCP		:= i686-w64-mingw32.static-g++
+-WINRES		:= i686-w64-mingw32.static-windres
++CC		?= i686-w64-mingw32.static-gcc
++CCP		?= i686-w64-mingw32.static-g++
++WINRES		?= i686-w64-mingw32.static-windres
+ MAKENSIS	:= i686-w64-mingw32.static-makensis
+ CXXFLAGS 	+= -D__HOST_WIN__
+ CFLAGS		+= -D__HOST_WIN__
+ LIBS_STATIC	+= hidapi usb-1.0
+ LIBS_STATIC	+= hid setupapi
+-LSEARCH		:= -L../libs/Win/
++LSEARCH		?= -L../libs/Win/
+ 
+ # Fixes packing issue
+ CFLAGS		+= -mno-ms-bitfields
+ endif
+ 
++ifneq ($(HOSTOS),win)
++LSEARCH		?= -L/usr/local/lib
++endif
++
+ CXXFLAGS = $(CFLAGS)
+ ASFLAGS :=
+ LDFLAGS :=
+@@ -45,9 +49,9 @@ include $(TARGETMK)
+ 
+ # Add all the libraries defined in config.mk to LDLIBS
+ LDLIBS := $(addprefix -l,$(LIBRARIES))
+-LSEARCH := -L../libs/$(MACHINE)/
++LSEARCH ?= -L../libs/$(MACHINE)/
+ ifeq ($(HOSTOS), win)
+-LSEARCH := -L../libs/Win/
++LSEARCH ?= -L../libs/Win/
+ LSEARCH += -L../../build/mxe/usr/i686-w64-mingw32.static/lib/
+ endif
+ 
+-- 
+2.23.0
+
