@@ -1,0 +1,41 @@
+{% set name = "Vulkan-Headers" %}
+{% set version = "1.2.154" %}
+
+package:
+  # no-arch to aid cross-compilation, but they are platform specific still.
+  name: {{ name|lower }}-{{ target_platform }}
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/KhronosGroup/{{ name }}
+  git_tag: v{{ version }}
+
+build:
+  number: 0
+  noarch: generic
+  script:
+    - cmake -GNinja -DCMAKE_INSTALL_PREFIX=${PREFIX}  # [unix]
+    - cmake -GNinja -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%  # [win]
+    - cmake --build . --target install
+
+requirements:
+  build:
+    - cmake
+    - ninja
+
+about:
+  home: https://github.com/KhronosGroup/Vulkan-Headers
+  # Remember to specify the license variants for BSD, Apache, GPL, and LGPL.
+  # Prefer the short version, e.g: GPL-2.0 instead of GNU General Public License version 2.0
+  # See https://opensource.org/licenses/alphabetical
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE.txt
+  summary: Vulkan header files and API registry
+  description: Vulkan header files and API registry
+  doc_url: https://github.com/KhronosGroup/Vulkan-Headers
+  dev_url: https://github.com/KhronosGroup/Vulkan-Headers
+
+extra:
+  recipe-maintainers:
+    - mingwandroid

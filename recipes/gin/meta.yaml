@@ -1,0 +1,39 @@
+{% set name = "gin" %}
+{% set version = "0.1.006" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  # url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  url: "https://files.pythonhosted.org/packages/24/03/e714d1c947680cd722c57dd9a274e9c4f999fb76629a6c2efbee4487607d/gin-0.1.006.tar.bz2"
+  sha256: 0747da840881792f1726f9145094953b0a1499e9b41324a14ca6a10c03baa1ef
+
+build:
+  number: 1
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - python
+  
+  test:
+    imports:
+      - gin
+
+about:
+  home: "https://github.com/sbp/gin"
+  license: UNKNOWN
+  license_family: OTHER
+  license_file: 
+  summary: "Git index file parser"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - mingwandroid

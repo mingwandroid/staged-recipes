@@ -1,0 +1,28 @@
+{% set version = '8.1.1' %}
+{% set name = 'fd-find' %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://github.com/sharkdp/fd/archive/v{{ version }}.tar.gz
+  sha256: 2513338d61a5c12c8fea18a0387b3e0651079ef9b31f306050b1f0aaa926271e
+
+build:
+  script:
+    - set RUST_BACKTRACE=1  # [win]
+    - cargo build --release -v
+    - $STRIP target/release/fd  # [not win]
+    - mkdir $PREFIX/bin  # [not win]
+    - mkdir %PREFIX%\Library\mingw-w64\bin  # [win]
+    - cp target/release/fd $PREFIX/bin/fd  # [not win]
+    - copy target\release\fd.exe %PREFIX%\Library\mingw-w64\bin\fd.exe  # [win]
+  missing_dso_whitelist:
+    - /usr/lib/libresolv.9.dylib
+
+requirements:
+  build:
+    - {{ compiler('rust') }}  # [not win]
+    - {{ compiler('rust-gnu') }}  # [win]

@@ -1,0 +1,17 @@
+package:
+  name: radare2-suite
+  version: 4.5.1
+
+source:
+  - url: https://github.com/radareorg/radare2/releases/download/4.5.1/radare2-src-4.5.1.tar.gz
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+  host:
+    - python
+
+build:
+  number: 0
+  script:
+    -  ./sys/meson.py --prefix=${CONDA_PREFIX} --shared --install

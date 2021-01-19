@@ -1,0 +1,51 @@
+{% set name = 'godot' %}
+{% set version = '4.0' %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/godotengine/godot
+  git_tag: master
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}  # [linux]
+    - {{ cdt('libxcb') }}  # [linux]
+    - {{ cdt('libselinux-devel') }}  # [linux]
+    - {{ cdt('libxi-devel') }}  # [linux]
+    - {{ cdt('libx11-devel') }}  # [linux]
+    - {{ cdt('libxau-devel') }}  # [linux]
+    - {{ cdt('libxext-devel') }}  # [linux]
+    - {{ cdt('libxfixes-devel') }}  # [linux]
+    - {{ cdt('mesa-libgl-devel') }}  # [linux]
+    - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
+    - {{ cdt('mesa-dri-drivers') }}  # [linux]
+    - {{ cdt('libxdamage-devel') }}  # [linux]
+    - {{ cdt('libxxf86vm') }}  # [linux]
+    - {{ cdt('libxcursor-devel') }}  # [linux]
+    - {{ cdt('libxrender-devel') }}  # [linux]
+    - {{ cdt('libxinerama-devel') }}  # [linux]
+    - {{ cdt('libxrandr-devel') }}  # [linux]
+    - {{ cdt('alsa-lib-devel') }}  # [linux]
+    - {{ cdt('pulseaudio-libs-devel') }}  # [linux]
+    - yasm
+    - scons
+    - make  # [not win]
+  host:
+    - zlib
+    - zstd
+
+build:
+  script:
+    - scons platform=osx arch=x86_64 verbose=yes builtin_zlib=False builtin_zstd=False CXX=${CXX} CC=${CC} LD=${LD} CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LINKFLAGS="${LDFLAGS}" osxcross_sdk=darwin12 MACOS_SDK_PATH="${CONDA_BUILD_SYSROOT}" --jobs=${CPU_COUNT}  # [osx]
+    - scons platform=linux arch=x86_64 verbose=yes builtin_zlib=False builtin_zstd=False CXX=${CXX} CC=${CC} LD=${LD} CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LINKFLAGS="${LDFLAGS}" --jobs=${CPU_COUNT}  # [linux]
+    - mkdir ${PREFIX}/bin || true
+    - cp bin/godot.osx.tools.x86_64 ${PREFIX}/bin/godot  # [osx]
+    - cp bin/godot.linuxbsd.tools.x86_64 ${PREFIX}/bin/godot  # [linux] 
+
+test:
+  commands:
+    - godot
+

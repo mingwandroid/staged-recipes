@@ -1,0 +1,74 @@
+{% set name = "VulkanSamples" %}
+{% set version = "1.2.153" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  - git_url: https://github.com/LunarG/{{ name }}
+    git_tag: v{{ version }}
+  - git_url: https://github.com/KhronosGroup/Vulkan-Loader.git
+    git_tag: v{{ version }}
+    folder: submodules/Vulkan-Loader
+  - git_url: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers.git
+    git_tag: sdk-1.1.73.0
+    folder: submodules/Vulkan-LoaderAndValidationLayers
+  - git_url: https://github.com/KhronosGroup/glslang.git
+    git_tag: 3bb4c48cd95892a5cfcd63df20fcc47fd51c97a0
+    folder: submodules/Vulkan-LoaderAndValidationLayers/external/glslang
+    patches:
+      - 0001-Remove-glslang-pool_allocator-setAllocator.patch
+  - git_url: https://github.com/KhronosGroup/SPIRV-Tools
+    git_tag: 26a698c34788bb69123a1f3789970a16cf4d9641
+    folder: submodules/Vulkan-LoaderAndValidationLayers/external/glslang/External/spirv-tools
+  - git_url: https://github.com/KhronosGroup/SPIRV-Headers
+    git_tag: 12f8de9f04327336b699b1b80aa390ae7f9ddbf4
+    folder: submodules/Vulkan-LoaderAndValidationLayers/external/glslang/External/spirv-tools/external/spirv-headers
+  # Fetched as a submodule.
+  # - git_url: https://github.com/google/googletest.git
+  #   git_ref: 9dde7c4e8c46a65ad6215440bb396ad219e06ed4
+  #   folder: submodules/Vulkan-LoaderAndValidationLayers/submodules/googletest
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - {{ cdt('libselinux-devel') }}  # [linux]
+    - {{ cdt('libxi-devel') }}  # [linux]
+    - {{ cdt('libx11-devel') }}  # [linux]
+    - {{ cdt('libxau-devel') }}  # [linux]
+    - {{ cdt('libxext-devel') }}  # [linux]
+    - {{ cdt('libxfixes-devel') }}  # [linux]
+    - {{ cdt('mesa-libgl-devel') }}  # [linux]
+    - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
+    - {{ cdt('mesa-dri-drivers') }}  # [linux]
+    - {{ cdt('libxdamage-devel') }}  # [linux]
+    - {{ cdt('libxxf86vm') }}  # [linux]
+    - python =3
+    - cmake
+    - ninja
+    - git
+  host:
+    - vulkan-headers-{{ target_platform }}
+    - gfx-portability
+    - libxcb  # [linux]
+
+about:
+  home: https://github.com/LunarG/VulkanSamples
+  # Remember to specify the license variants for BSD, Apache, GPL, and LGPL.
+  # Prefer the short version, e.g: GPL-2.0 instead of GNU General Public License version 2.0
+  # See https://opensource.org/licenses/alphabetical
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE.txt
+  summary: A collection of Vulkan C++ sample applications
+  description: A collection of Vulkan C++ sample applications
+  doc_url: https://github.com/LunarG/VulkanSamples
+  dev_url: https://github.com/LunarG/VulkanSamples
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
