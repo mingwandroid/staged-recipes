@@ -1,0 +1,55 @@
+{% set version = "2.9.9" %}
+
+package:
+  name: osxfuse
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/osxfuse/fuse
+  # No releases or useful branches. Master commit on 20210125
+  git_tag: 8071bd97494cd2982ed5635525b8a754edfbfb0f
+  patches:
+    - 0001-Add-AM_GNU_GETTEXT_VERSION-0.19.8.patch
+  # patches:
+  #   - 0001-Install-fusermount-init-script-into-sysconfdir.patch
+  #   - 0002-Enable-building-utils-on-CentOS-6.patch
+
+build:
+  number: 0
+  skip: true  # [not unix]
+  run_exports:
+    # Seems to be quite stable between minor versions
+    # https://abi-laboratory.pro/?view=timeline&l=libfuse
+    - {{ pin_subpackage('osxfuse', max_pin='x') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - autoconf
+    - automake
+    - libtool
+    - make
+    - pkg-config
+  host:
+    - gettext
+    - libiconv
+
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libfuse.2${SHLIB_EXT}
+    - test -f ${PREFIX}/include/fuse.h
+    - test -f ${PREFIX}/include/fuse/fuse.h
+    # - 'mount.fuse3 2>&1 | grep -qF usage:'
+    # - fusermount3 -V
+
+about:
+  home: https://github.com/libfuse/libfuse
+  license: GPL-2.0-only
+  license_file:
+    - COPYING
+  license_family: GPL
+  summary: FUSE extends macOS by adding support for user space file systems
+
+extra:
+  recipe-maintainers:
+    - mingwandroid

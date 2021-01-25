@@ -1,0 +1,46 @@
+{% set name = "bindfs" %}
+{% set version = "1.14.8" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://bindfs.org/downloads/{{ name }}-{{ version }}.tar.gz
+  sha256: e5ca5aff55204b993a025a77c3f8c0e2ee901ba8059d71bea11de2cc685ec497
+
+build:
+  number: 0
+  script: ./configure --prefix=${PREFIX} && make && make install
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - libfuse  # [linux]
+    - osxfuse  # [osx]
+  run:
+    - libfuse  # [linux]
+
+test:
+  # Some packages might need a `test/commands` key to check CLI.
+  # List all the packages/modules that `run_test.py` imports.
+  commands:
+    - bindfs --help
+
+about:
+  home: https://bindfs.org/
+  license: GPL-2.0-or-later
+  license_family: GPL
+  license_file: COPYING
+  summary: 'Mount a directory to another location and alter permission bits'
+  description: |
+    bindfs is a FUSE filesystem for mounting a directory to another location,
+    similarly to mount --bind. The permissions inside the mountpoint can be
+    altered using various rules.
+  doc_url: https://bindfs.org/docs/bindfs-help.txt
+  dev_url: https://github.com/mpartel/bindfs
+
+extra:
+  recipe-maintainers:
+    - mingwandroid
